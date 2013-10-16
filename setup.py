@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 
-# import setuptools
+import setuptools
 from numpy.distutils.core import setup, Extension
 from os.path import join
 
