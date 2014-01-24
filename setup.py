@@ -30,6 +30,6 @@ setup(
     license='Apache License, Version 2.0',
     ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'],
                            include_dirs=[join(path, 'pBEAM')],
-                           libraries=['boost_python-mt', 'boost_system-mt', 'lapack'])]
+                           libraries=['boost_python-mt', 'lapack'])]  #'boost_system-mt'
 
 )
