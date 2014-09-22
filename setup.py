@@ -29,7 +29,8 @@ setup(
     # install_requires=['numpy', 'scipy'],
     license='Apache License, Version 2.0',
     ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'],
-                           include_dirs=[join(path, 'pBEAM')],
-                           libraries=['boost_python-mt', 'lapack'])]  #'boost_system-mt'
+                           include_dirs=[join(path, 'pBEAM'), 'C:/boost_1_55_0'],
+                           library_dirs=['C:/boost_1_55_0/stage/lib', 'C:/lapack'],
+                           libraries=['boost_python-mgw46-mt-1_55', 'lapack'])]
 
 )

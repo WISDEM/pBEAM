@@ -1,5 +1,3 @@
-# pBEAM: polynomial beam element analysis module
-
 A finite element method for beam-like structures.
 
 Author: S. Andrew Ning
