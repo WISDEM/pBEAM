@@ -4,7 +4,7 @@ Author: S. Andrew Ning
 
 ## Detailed Documentation
 
-Open `docs/_build/html/index.html` in your browser or see  <http://wisdem.github.io/pBEAM/>
+Open `docs/_build/html/index.html` in your browser.
 
 ## Prerequisites
 
