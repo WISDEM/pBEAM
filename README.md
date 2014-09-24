@@ -2,6 +2,10 @@ A finite element method for beam-like structures.
 
 Author: S. Andrew Ning
 
+## Detailed Documentation
+
+Open `docs/_build/html/index.html` in your browser or see  <http://wisdem.github.io/pBEAM/>
+
 ## Prerequisites
 
 C++ compiler, [Boost C++ Libraries](http://www.boost.org), LAPACK, NumPy
@@ -78,10 +82,6 @@ and import the module.  If no errors are issued, then the installation was succe
     >>> import _pBEAM
 
 
-
-
-
-
 ## Unit Tests
 
 pBEAM has a large range of unit tests, but they are only accessible through C++.  They are intended to test the integrity of the underying code for development purposes, rather than the python interface.  However, if you want to run the tests then change directory to `src/twister/rotorstruc/pBEAM` and run
@@ -93,7 +93,6 @@ where the name of your C++ compiler should be inserted in the place of g++.  The
 
     $ make clean
 
+For software issues please use <https://github.com/WISDEM/pBEAM/issues>.  For functionality and theory related questions and comments please use the NWTC forum for [Systems Engineering Software Questions](https://wind.nrel.gov/forum/wind/viewtopic.php?f=34&t=1002).
 
-## Detailed Documentation
 
-Open `docs/_build/html/index.html` in your browser.
