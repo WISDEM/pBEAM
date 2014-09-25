@@ -13,7 +13,7 @@ C++ compiler, [Boost C++ Libraries](http://www.boost.org), LAPACK, NumPy
 ## Installation (Windows)
 
 These instructions assume you are using MinGW and have already installed gcc and g++.
-Also you should already have successfully installed Python, NumPy, and setuptools.
+Also you should already have successfully installed Python (for a [single user only](http://bugs.python.org/issue5459#msg101098)), NumPy, and setuptools.
 The example directories may need to be modified depending on where you installed things.
 
 1) Edit (or create) a distutils config 'distutils.cfg' file in your Python directory.
