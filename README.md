@@ -2,10 +2,6 @@ A finite element method for beam-like structures.
 
 Author: S. Andrew Ning
 
-## Detailed Documentation
-
-Open `docs/_build/html/index.html` in your browser.
-
 ## Prerequisites
 
 C++ compiler, [Boost C++ Libraries](http://www.boost.org), LAPACK, NumPy
@@ -95,4 +91,8 @@ where the name of your C++ compiler should be inserted in the place of g++.  The
 
 For software issues please use <https://github.com/WISDEM/pBEAM/issues>.  For functionality and theory related questions and comments please use the NWTC forum for [Systems Engineering Software Questions](https://wind.nrel.gov/forum/wind/viewtopic.php?f=34&t=1002).
 
+
+## Detailed Documentation
+
+Access the online version at <http://wisdem.github.io/pBEAM/>
 
