@@ -1,0 +1,683 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>4. Module Documentation &mdash; pBEAM 0.1.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/nrel.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="pBEAM 0.1.0 documentation" href="index.html" />
+    <link rel="next" title="5. Theory" href="theory.html" />
+    <link rel="prev" title="3. Tutorial" href="tutorial.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="theory.html" title="5. Theory"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="3. Tutorial"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">pBEAM 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <span class="target" id="module-_pBEAM"></span><div class="section" id="module-documentation">
+<span id="documentation-label"></span><h1>4. Module Documentation<a class="headerlink" href="#module-documentation" title="Permalink to this headline">¶</a></h1>
+<p>This documentation only details the outward facing classes that are available through the Python module.  Other classes and methods are available through the C++ implementation; however, they primarily encapsulate implementation details not necessary for external use.  For details on use through C++, refer to the source code and examples in the test suite.  The main class in the pBEAM module is <a class="reference internal" href="#beam-label"><em>Beam</em></a>.  All other classes are only helper objects used as inputs to the Beam object.</p>
+<div class="section" id="beam">
+<span id="beam-label"></span><h2>4.1. Beam<a class="headerlink" href="#beam" title="Permalink to this headline">¶</a></h2>
+<p>Beam is the main class for pBEAM and defines the complete beam object.  Three constructors are provided: a convenience constructor for a beam with cylindrical shell sections and isotropic material (e.g., a wind turbine tower), a constructor for general sections that very linearly between sections, and a constructor where properties vary as polynomials across elements.</p>
+<p class="rubric">Class Summary:</p>
+<span class="target" id="beam-tower-label"></span><dl class="class">
+<dt id="_pBEAM.Beam">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">Beam</tt><big>(</big><em>nodes</em>, <em>z</em>, <em>d</em>, <em>t</em>, <em>loads</em>, <em>mat</em>, <em>tip</em>, <em>base</em><big>)</big><a class="headerlink" href="#_pBEAM.Beam" title="Permalink to this definition">¶</a></dt>
+<dd><p>A convenience constructor for a beam with cylindrical shell sections and isotropic material (e.g., a wind turbine tower)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>nodes</strong> : int</p>
+<blockquote>
+<div><p>number of nodes</p>
+</div></blockquote>
+<p><strong>z</strong> : ndarray [nodes] (m)</p>
+<blockquote>
+<div><p>location of beam sections starting from base and ending at tip</p>
+</div></blockquote>
+<p><strong>d</strong> : ndarray [nodes] (m)</p>
+<blockquote>
+<div><p>diameter of beam at each z-location</p>
+</div></blockquote>
+<p><strong>t</strong> : ndarray [nodes] (m)</p>
+<blockquote>
+<div><p>shell thickness of beam at each z-location</p>
+</div></blockquote>
+<p><strong>loads</strong> : <a class="reference internal" href="#loads-label"><em>Loads</em></a></p>
+<blockquote>
+<div><p>loads along beam</p>
+</div></blockquote>
+<p><strong>material</strong> : <a class="reference internal" href="#material-label"><em>Material</em></a></p>
+<blockquote>
+<div><p>isotropic material properties</p>
+</div></blockquote>
+<p><strong>tip</strong> : <a class="reference internal" href="#tip-label"><em>TipData</em></a></p>
+<blockquote>
+<div><p>properties of offset tip mass</p>
+</div></blockquote>
+<p><strong>base</strong> : <a class="reference internal" href="#base-label"><em>BaseData</em></a></p>
+<blockquote class="last">
+<div><p>properties of base stiffness boundary condition</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<span class="target" id="beam-linear-label"></span><dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">Beam</tt><big>(</big><em>section</em>, <em>loads</em>, <em>tip</em>, <em>base</em><big>)</big></dt>
+<dd><p>A beam with general section properties with linear variation between nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>section</strong> : <a class="reference internal" href="#section-data-label"><em>SectionData</em></a></p>
+<blockquote>
+<div><p>section data (inertial and stiffness properties) along beam</p>
+</div></blockquote>
+<p><strong>loads</strong> : <a class="reference internal" href="#loads-label"><em>Loads</em></a></p>
+<blockquote>
+<div><p>loads along beam</p>
+</div></blockquote>
+<p><strong>tip</strong> : <a class="reference internal" href="#tip-label"><em>TipData</em></a></p>
+<blockquote>
+<div><p>properties of offset tip mass</p>
+</div></blockquote>
+<p><strong>base</strong> : <a class="reference internal" href="#base-label"><em>BaseData</em></a></p>
+<blockquote class="last">
+<div><p>properties of base stiffness boundary condition</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">Beam</tt><big>(</big><em>section</em>, <em>loads</em>, <em>tip</em>, <em>base</em>, <em>flag</em><big>)</big></dt>
+<dd><p>A beam with general section properties with polynomial variation between nodes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>section</strong> : <a class="reference internal" href="#polysection-data-label"><em>PolySectionData</em></a></p>
+<blockquote>
+<div><p>polynomial section data (inertial and stiffness properties) along beam</p>
+</div></blockquote>
+<p><strong>loads</strong> : <a class="reference internal" href="#polyloads-label"><em>PolyLoads</em></a></p>
+<blockquote>
+<div><p>polynomial loads along beam</p>
+</div></blockquote>
+<p><strong>tip</strong> : <a class="reference internal" href="#tip-label"><em>TipData</em></a></p>
+<blockquote>
+<div><p>properties of offset tip mass</p>
+</div></blockquote>
+<p><strong>base</strong> : <a class="reference internal" href="#base-label"><em>BaseData</em></a></p>
+<blockquote>
+<div><p>properties of base stiffness boundary condition</p>
+</div></blockquote>
+<p><strong>flag</strong> : int</p>
+<blockquote class="last">
+<div><p>can be set to any value, just a flag to allow use of polynomial variation rather
+than the overloaded constructor above that uses linear variation</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<p class="rubric">Methods</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="53%" />
+<col width="47%" />
+</colgroup>
+<tbody valign="top">
+<tr class="row-odd"><td><a class="reference internal" href="methods/mass.html"><em>mass()</em></a></td>
+<td>mass of beam</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="methods/freq.html"><em>naturalFrequencies(n)</em></a></td>
+<td>first n natural frequencies</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="methods/freqvec.html"><em>naturalFrequenciesAndEigenvectors(n)</em></a></td>
+<td>first n natural frequencies and eigenvectors</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="methods/disp.html"><em>displacement()</em></a></td>
+<td>6 DOF displacement at each node</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="methods/buckling.html"><em>criticalBucklingLoads()</em></a></td>
+<td>global minimum critical axial buckling loads</td>
+</tr>
+<tr class="row-even"><td><a class="reference internal" href="methods/strain.html"><em>axialStrain(n, x, y, z)</em></a></td>
+<td>axial strain along beam</td>
+</tr>
+<tr class="row-odd"><td><a class="reference internal" href="methods/inertia.html"><em>outOfPlaneMomentOfInertia()</em></a></td>
+<td>out of plane moment of inertia</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="sectiondata">
+<span id="section-data-label"></span><h2>4.2. SectionData<a class="headerlink" href="#sectiondata" title="Permalink to this headline">¶</a></h2>
+<p>SectionData is a C++ struct that defines the section properties along the beam, assuming a linear variation in properties between the defined sections.  For polynomial variation, see <a class="reference internal" href="#polysection-data-label"><em>PolySectionData</em></a>.</p>
+<p class="rubric">Class Summary:</p>
+<span class="target" id="section-data-linear-label"></span><dl class="class">
+<dt id="_pBEAM.SectionData">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">SectionData</tt><big>(</big><em>n</em>, <em>z</em>, <em>EA</em>, <em>EIxx</em>, <em>EIyy</em>, <em>GJ</em>, <em>rhoA</em>, <em>rhoJ</em><big>)</big><a class="headerlink" href="#_pBEAM.SectionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Section data defined along the structure from base to tip.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>number of sections where data is defined (nodes)</p>
+</div></blockquote>
+<p><strong>z</strong> : ndarray [n] (m)</p>
+<blockquote>
+<div><p>location of beam sections starting from base and ending at tip</p>
+</div></blockquote>
+<p><strong>EA</strong> : ndarray [n] (N)</p>
+<blockquote>
+<div><p>axial stiffness at each section</p>
+</div></blockquote>
+<p><strong>EIxx</strong> : ndarray [n] (N*m**2)</p>
+<blockquote>
+<div><p>bending stiffness about +x-axis</p>
+</div></blockquote>
+<p><strong>EIyy</strong> : ndarray [n] (N*m**2)</p>
+<blockquote>
+<div><p>bending stiffness about +y-axis</p>
+</div></blockquote>
+<p><strong>GJ</strong> : ndarray [n] (N*m**2)</p>
+<blockquote>
+<div><p>torsional stiffness about +z-axis</p>
+</div></blockquote>
+<p><strong>rhoA</strong> : ndarray [n] (kg/m)</p>
+<blockquote>
+<div><p>mass per unit length</p>
+</div></blockquote>
+<p><strong>rhoJ</strong> : ndarray [n] (kg*m)</p>
+<blockquote class="last">
+<div><p>polar mass moment of inertia per unit length</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>All parameters must be specified about the elastic center and in principal axis
+(i.e., EIxy, Sx, and Sy are all zero). Linear variation in properties between sections is assumed.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="polysectiondata">
+<span id="polysection-data-label"></span><h2>4.3. PolySectionData<a class="headerlink" href="#polysectiondata" title="Permalink to this headline">¶</a></h2>
+<p>PolySectionData is a C++ struct that defines the section properties along the beam, and allows for polynomial variation of properties between the defined sections.  For linear variation, <a class="reference internal" href="#section-data-label"><em>SectionData</em></a> is simpler to work with.</p>
+<p class="rubric">Class Summary:</p>
+<dl class="class">
+<dt id="_pBEAM.PolySectionData">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">PolySectionData</tt><big>(</big><em>nodes</em>, <em>z</em>, <em>nA</em>, <em>nI</em>, <em>EA</em>, <em>EIxx</em>, <em>EIyy</em>, <em>GJ</em>, <em>rhoA</em>, <em>rhoJ</em><big>)</big><a class="headerlink" href="#_pBEAM.PolySectionData" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polynomial section data defined along the structure from base to tip.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>number of sections where data is defined (nodes)</p>
+</div></blockquote>
+<p><strong>z</strong> : ndarray [n] (m)</p>
+<blockquote>
+<div><p>location of beam sections starting from base and ending at tip</p>
+</div></blockquote>
+<p><strong>nA</strong> : ndarray(int) [n - 1]</p>
+<blockquote>
+<div><p>nA[i] is the order of the polynomial describing structural properties between nodes i and i + 1 for
+properties that are area dependent (EA, rhoA)</p>
+</div></blockquote>
+<p><strong>nI</strong> : ndarray(int) [n - 1]</p>
+<blockquote>
+<div><p>nI[i] is the order of the polynomial describing structural properties between nodes i and i + 1 for
+properties that are moment of inertia dependent (EIxx, EIyy, GJ, rhoJ)</p>
+</div></blockquote>
+<p><strong>EA</strong> : list(ndarray) [n - 1] (N)</p>
+<blockquote>
+<div><p>EA[i] is a polynomial of length nA[i] that describes the axial stiffness between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>EIxx</strong> : list(ndarray) [n - 1] (N*m**2)</p>
+<blockquote>
+<div><p>EIxx[i] is a polynomial of length nI[i] that describes the bending stiffness about +x-axis between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>EIyy</strong> : list(ndarray) [n - 1] (N*m**2)</p>
+<blockquote>
+<div><p>EIyy[i] is a polynomial of length nI[i] that describes the bending stiffness about +y-axis between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>GJ</strong> : list(ndarray) [n - 1] (N*m**2)</p>
+<blockquote>
+<div><p>GJ[i] is a polynomial of length nI[i] that describes the torsional stiffness about +z-axis between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>rhoA</strong> : list(ndarray) [n - 1] (kg/m)</p>
+<blockquote>
+<div><p>rhoA[i] is a polynomial of length nA[i] that describes the mass per unit length between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>rhoJ</strong> : list(ndarray) [n - 1] (kg*m)</p>
+<blockquote class="last">
+<div><p>rhoJ[i] is a polynomial of length nI[i] that describes the polar mass moment of inertia per unit length between nodes i and i + 1</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>All parameters must be specified about the elastic center and in principal axis
+(i.e., EIxy, Sx, and Sy are all zero).  Polynomials are expressed as:</p>
+<p>EA[i] = [5.0, 3.0, 2.0] which means <span class="math">\(EA[i] = 5.0\eta^2 + 3.0\eta + 2.0\)</span></p>
+<p>where <span class="math">\(\eta\)</span> is a normalized coordinate s.t. it equals 0 at the base
+of the given element and 1 at the top of the element.
+The numpy polynomial class (numpy.poly1d) is useful for multiplying polynomials, etc.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="loads">
+<span id="loads-label"></span><h2>4.4. Loads<a class="headerlink" href="#loads" title="Permalink to this headline">¶</a></h2>
+<p>Loads is a C++ struct that defines the applied loads along the beam.  Three constructors are provided: beams with no external loads, beams with only distributed loads, and beams with distributed loads and point forces/moments.  Distributed loads are assumed to vary lineary between sections.  For polynomial variation in distributed loads, see <a class="reference internal" href="#polyloads-label"><em>PolyLoads</em></a>.</p>
+<p class="rubric">Class Summary:</p>
+<dl class="class">
+<dt id="_pBEAM.Loads">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">Loads</tt><a class="headerlink" href="#_pBEAM.Loads" title="Permalink to this definition">¶</a></dt>
+<dd><p>No applied external loads.</p>
+</dd></dl>
+
+<span class="target" id="loads-distributed-label"></span><dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">Loads</tt><big>(</big><em>n</em>, <em>Px</em>, <em>Py</em>, <em>Pz</em><big>)</big></dt>
+<dd><p>Distributed loads along beam from base to tip.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>number of sections where forces are defined (nodes)</p>
+</div></blockquote>
+<p><strong>Px</strong> : ndarray [n] (N/m)</p>
+<blockquote>
+<div><p>force per unit length along beam in the x-direction</p>
+</div></blockquote>
+<p><strong>Py</strong> : ndarray [n] (N/m)</p>
+<blockquote>
+<div><p>force per unit length along beam in the y-direction</p>
+</div></blockquote>
+<p><strong>Pz</strong> : ndarray [n] (N/m)</p>
+<blockquote class="last">
+<div><p>force per unit length along beam in the z-direction</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Loads must be given at the corresponding z locations defined
+in <a class="reference internal" href="#section-data-label"><em>SectionData</em></a> or <a class="reference internal" href="#polysection-data-label"><em>PolySectionData</em></a>.</p>
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">Loads</tt><big>(</big><em>n</em>, <em>Px</em>, <em>Py</em>, <em>Pz</em>, <em>Fx</em>, <em>Fy</em>, <em>Fz</em>, <em>Mx</em>, <em>My</em>, <em>Mz</em><big>)</big></dt>
+<dd><p>Distributed loads and applied point forces/moments along beam
+from base to tip.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>number of sections where forces are defined (nodes)</p>
+</div></blockquote>
+<p><strong>Px</strong> : ndarray [n] (N/m)</p>
+<blockquote>
+<div><p>force per unit length along beam in the x-direction</p>
+</div></blockquote>
+<p><strong>Py</strong> : ndarray [n] (N/m)</p>
+<blockquote>
+<div><p>force per unit length along beam in the y-direction</p>
+</div></blockquote>
+<p><strong>Pz</strong> : ndarray [n] (N/m)</p>
+<blockquote>
+<div><p>force per unit length along beam in the z-direction</p>
+</div></blockquote>
+<p><strong>Fx</strong> : ndarray [n] (N)</p>
+<blockquote>
+<div><p>point forces in the x-direction</p>
+</div></blockquote>
+<p><strong>Fy</strong> : ndarray [n] (N)</p>
+<blockquote>
+<div><p>point forces in the y-direction</p>
+</div></blockquote>
+<p><strong>Fz</strong> : ndarray [n] (N)</p>
+<blockquote>
+<div><p>point forces in the z-direction</p>
+</div></blockquote>
+<p><strong>Mx</strong> : ndarray [n] (N*m)</p>
+<blockquote>
+<div><p>point moments in the x-direction</p>
+</div></blockquote>
+<p><strong>My</strong> : ndarray [n] (N*m)</p>
+<blockquote>
+<div><p>point moments in the y-direction</p>
+</div></blockquote>
+<p><strong>Mz</strong> : ndarray [n] (N*m)</p>
+<blockquote class="last">
+<div><p>point moments in the z-direction</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Loads must be given at the corresponding z locations defined
+in <a class="reference internal" href="#section-data-label"><em>SectionData</em></a> or <a class="reference internal" href="#polysection-data-label"><em>PolySectionData</em></a>.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="polyloads">
+<span id="polyloads-label"></span><h2>4.5. PolyLoads<a class="headerlink" href="#polyloads" title="Permalink to this headline">¶</a></h2>
+<p>PolyLoads is a C++ struct that defines the applied loads along the beam and allows for polynomial variation of loads between the defined sections.  For linear variation in distributed loads, <a class="reference internal" href="#loads-label"><em>Loads</em></a> is simpler to work with.</p>
+<p class="rubric">Class Summary:</p>
+<dl class="class">
+<dt id="_pBEAM.PolyLoads">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">PolyLoads</tt><big>(</big><em>n</em>, <em>nP</em>, <em>Px</em>, <em>Py</em>, <em>Pz</em>, <em>Fx</em>, <em>Fy</em>, <em>Fz</em>, <em>Mx</em>, <em>My</em>, <em>Mz</em><big>)</big><a class="headerlink" href="#_pBEAM.PolyLoads" title="Permalink to this definition">¶</a></dt>
+<dd><p>Polynomial variation in distributed loads, and point forces/moments defined along the structure from base to tip.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>n</strong> : int</p>
+<blockquote>
+<div><p>number of sections where loads are defined (nodes)</p>
+</div></blockquote>
+<p><strong>nP</strong> : ndarray(int) [n - 1]</p>
+<blockquote>
+<div><p>nP[i] is the order of the polynomial describing the distributed load between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>Px</strong> : list(ndarray) [n - 1] (N)</p>
+<blockquote>
+<div><p>Px[i] is a polynomial of length nP[i] that describes the force per unit length
+in the +x-direction between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>Py</strong> : list(ndarray) [n - 1] (N)</p>
+<blockquote>
+<div><p>Py[i] is a polynomial of length nP[i] that describes the force per unit length
+in the +y-direction between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>Pz</strong> : list(ndarray) [n - 1] (N)</p>
+<blockquote>
+<div><p>Pz[i] is a polynomial of length nP[i] that describes the force per unit length
+in the +z-direction between nodes i and i + 1</p>
+</div></blockquote>
+<p><strong>Fx</strong> : ndarray [n] (N)</p>
+<blockquote>
+<div><p>point forces in the x-direction</p>
+</div></blockquote>
+<p><strong>Fy</strong> : ndarray [n] (N)</p>
+<blockquote>
+<div><p>point forces in the y-direction</p>
+</div></blockquote>
+<p><strong>Fz</strong> : ndarray [n] (N)</p>
+<blockquote>
+<div><p>point forces in the z-direction</p>
+</div></blockquote>
+<p><strong>Mx</strong> : ndarray [n] (N*m)</p>
+<blockquote>
+<div><p>point moments in the x-direction</p>
+</div></blockquote>
+<p><strong>My</strong> : ndarray [n] (N*m)</p>
+<blockquote>
+<div><p>point moments in the y-direction</p>
+</div></blockquote>
+<p><strong>Mz</strong> : ndarray [n] (N*m)</p>
+<blockquote class="last">
+<div><p>point moments in the z-direction</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+<p class="rubric">Notes</p>
+<p>Polynomials are expressed as:</p>
+<p>Px[i] = [5.0, 3.0, 2.0], which means <span class="math">\(Px[i] = 5.0\eta^2 + 3.0\eta + 2.0\)</span></p>
+<p>where <span class="math">\(\eta\)</span> is a normalized coordinate s.t. it equals 0 at the base
+of the given element and 1 at the top of the element.
+The numpy polynomial class (numpy.poly1d) is useful for multiplying polynomials, etc.</p>
+<p>Loads must be given at the corresponding z locations defined in
+<a class="reference internal" href="#section-data-label"><em>SectionData</em></a> or <a class="reference internal" href="#polysection-data-label"><em>PolySectionData</em></a></p>
+</dd></dl>
+
+</div>
+<div class="section" id="basedata">
+<span id="base-label"></span><h2>4.6. BaseData<a class="headerlink" href="#basedata" title="Permalink to this headline">¶</a></h2>
+<p>BaseData is a C++ struct that defines the stiffness properties of the base of the beam.  Two constructors are available: a convenience constructor for a free-end, and a general constructor for specifying the equivalent spring stiffness in all 6 DOF.</p>
+<p class="rubric">Class Summary:</p>
+<dl class="class">
+<dt id="_pBEAM.BaseData">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">BaseData</tt><a class="headerlink" href="#_pBEAM.BaseData" title="Permalink to this definition">¶</a></dt>
+<dd><p>A free-end.  External spring stiffness is zero in all directions.</p>
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">BaseData</tt><big>(</big><em>k</em>, <em>infinity</em><big>)</big></dt>
+<dd><p>A base with equivalent external spring stiffness applied.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>k</strong> : ndarray [6] (N/m)</p>
+<blockquote>
+<div><p>stifness at base [k_xx, k_txtx, k_yy, k_tyty, k_zz, k_tztz]
+where tx is the rotational direction theta_x and so forth</p>
+</div></blockquote>
+<p><strong>infinity</strong> : float (N/m)</p>
+<blockquote class="last">
+<div><p>a value that represents infinity (can be any arbitrary float but it is convenient to use
+Python&#8217;s <tt class="docutils literal"><span class="pre">float('inf')</span></tt>).  used to denote infinitely rigid directions.</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="tipdata">
+<span id="tip-label"></span><h2>4.7. TipData<a class="headerlink" href="#tipdata" title="Permalink to this headline">¶</a></h2>
+<p>TipData is a C++ struct that defines the properties of the offset tip mass.  Two constructors are available: a convenience constructor for a beam with no offset tip mass, and a general constructor for specifying the properties of the offset tip mass.</p>
+<p class="rubric">Class Summary:</p>
+<dl class="class">
+<dt id="_pBEAM.TipData">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">TipData</tt><a class="headerlink" href="#_pBEAM.TipData" title="Permalink to this definition">¶</a></dt>
+<dd><p>No offset tip mass.</p>
+</dd></dl>
+
+<dl class="class">
+<dt>
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">TipData</tt><big>(</big><em>m</em>, <em>cm</em>, <em>I</em>, <em>F</em>, <em>M</em><big>)</big></dt>
+<dd><p>Used to model an offset tip mass (e.g., rotor/nacelle/assembly on top of a wind turbine tower)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>m</strong> : float (kg)</p>
+<blockquote>
+<div><p>mass of object</p>
+</div></blockquote>
+<p><strong>cm</strong> : ndarray [3] (m)</p>
+<blockquote>
+<div><p>location of object&#8217;s center of mass relative to beam tip [x, y, z]</p>
+</div></blockquote>
+<p><strong>I</strong> : ndarray [6] (m^4)</p>
+<blockquote>
+<div><p>area moment of inertia of object about beam tip [Ixx, Iyy, Izz, Ixy, Ixz, Iyz]</p>
+</div></blockquote>
+<p><strong>F</strong> : ndarray [3] (N)</p>
+<blockquote>
+<div><p>applied force from the object onto the beam tip [Fx, Fy, Fz]</p>
+</div></blockquote>
+<p><strong>M</strong> : ndarray [3] (N*m)</p>
+<blockquote class="last">
+<div><p>applied moment from the object onto the beam tip [Mx, My, Mz]</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="material">
+<span id="material-label"></span><h2>4.8. Material<a class="headerlink" href="#material" title="Permalink to this headline">¶</a></h2>
+<p>Material is a C++ struct that defines the material properties for an isotropic material.</p>
+<p class="rubric">Class Summary:</p>
+<dl class="class">
+<dt id="_pBEAM.Material">
+<em class="property">class </em><tt class="descclassname">_pBEAM.</tt><tt class="descname">Material</tt><big>(</big><em>E</em>, <em>G</em>, <em>rho</em><big>)</big><a class="headerlink" href="#_pBEAM.Material" title="Permalink to this definition">¶</a></dt>
+<dd><p>Material properties for an isotropic material.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters :</th><td class="field-body"><p class="first"><strong>E</strong> : float (N/m**2)</p>
+<blockquote>
+<div><p>modulus of elasticity</p>
+</div></blockquote>
+<p><strong>G</strong> : float (N/m**2)</p>
+<blockquote>
+<div><p>shear modulus</p>
+</div></blockquote>
+<p><strong>rho</strong> : float</p>
+<blockquote class="last">
+<div><p>mass density (kg/m**3)</p>
+</div></blockquote>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">4. Module Documentation</a><ul>
+<li><a class="reference internal" href="#beam">4.1. Beam</a></li>
+<li><a class="reference internal" href="#sectiondata">4.2. SectionData</a></li>
+<li><a class="reference internal" href="#polysectiondata">4.3. PolySectionData</a></li>
+<li><a class="reference internal" href="#loads">4.4. Loads</a></li>
+<li><a class="reference internal" href="#polyloads">4.5. PolyLoads</a></li>
+<li><a class="reference internal" href="#basedata">4.6. BaseData</a></li>
+<li><a class="reference internal" href="#tipdata">4.7. TipData</a></li>
+<li><a class="reference internal" href="#material">4.8. Material</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="tutorial.html"
+                        title="previous chapter">3. Tutorial</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="theory.html"
+                        title="next chapter">5. Theory</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/documentation.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="theory.html" title="5. Theory"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="tutorial.html" title="3. Tutorial"
+             >previous</a> |</li>
+        <li><a href="index.html">pBEAM 0.1.0 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, NREL.
+      Last updated on Jul 25, 2013.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
