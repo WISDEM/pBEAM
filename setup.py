@@ -44,4 +44,6 @@ else:
         # install_requires=['numpy', 'scipy'],
         license='Apache License, Version 2.0',
         # OS X, Linux
-        ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'])])
+        ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'],
+                               include_dirs=['./src/pBeam'])])
+
