@@ -33,7 +33,19 @@ if platform.system() == 'Windows':
         ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'],
                                include_dirs=[join(path, 'pBEAM'), 'C:/boost_1_55_0'],
                                library_dirs=['C:/boost_1_55_0/stage/lib', 'C:/lapack'],
-                               libraries=['boost_python-mgw46-mt-1_55', 'lapack'])])
+                               libraries=['boost_python-mgw46-mt-1_55', 'lapack', 'atlas'])])
+elif platform.system() == 'Darwin':
+    setup(
+        name='pBEAM',
+        version='0.1.0',
+        description='Polynomial Beam Element Analysis Module. Finite element analysis for beam-like structures.',
+        author='S. Andrew Ning',
+        author_email='andrew.ning@nrel.gov',
+        # install_requires=['numpy', 'scipy'],
+        license='Apache License, Version 2.0',
+        # OS X, Linux
+        ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'],
+                               include_dirs=[join(path, 'pBEAM')])])
 else:
     setup(
         name='pBEAM',
@@ -45,5 +57,6 @@ else:
         license='Apache License, Version 2.0',
         # OS X, Linux
         ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'],
-                               include_dirs=['./src/pBeam'])])
+                               include_dirs=[join(path, 'pBEAM')],
+                               libraries=['boost_python','lapack'])])
 
