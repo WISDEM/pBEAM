@@ -34,7 +34,7 @@ if platform.system() == 'Windows':
                                include_dirs=[join(path, 'pBEAM'), 'C:/boost_1_55_0'],
                                library_dirs=['C:/boost_1_55_0/stage/lib', 'C:/lapack'],
                                libraries=['boost_python-mgw46-mt-1_55', 'lapack', 'atlas'])])
-elif platform.system() == 'Darwin':
+elif platform.system() == 'Darwin.hide':
     setup(
         name='pBEAM',
         version='0.1.0',
