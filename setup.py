@@ -33,7 +33,7 @@ if platform.system() == 'Windows':
         ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=['-O2'],
                                include_dirs=[join(path, 'pBEAM'), 'C:/boost_1_55_0'],
                                library_dirs=['C:/boost_1_55_0/stage/lib', 'C:/lapack'],
-                               libraries=['boost_python-mgw46-mt-1_55', 'lapack', 'atlas'])])
+                               libraries=['boost_python-mgw46-mt-1_55', 'lapack', 'blas'])])
 elif platform.system() == 'Darwin.hide':
     setup(
         name='pBEAM',
