@@ -7,13 +7,16 @@
 //
 
 #include <boost/python.hpp>
+#include <boost/python/numpy.hpp>
 #include "myMath.h"
 #include "FEAData.h"
 #include "Beam.h"
 
 
 namespace bp = boost::python;
-namespace bpn = boost::python::numeric;
+// GBarter 01/29/2017 as of boost 1.65 the Boost Python numeric library is obsoleted by the numpy library
+//namespace bpn = boost::python::numeric;
+namespace bpn = boost::python::numpy;
 
 
 
@@ -27,7 +30,7 @@ struct pyTipData{
 
     }
 
-    pyTipData(double m, const bpn::array &cm, const bpn::array &I, const bpn::array &F, const bpn::array &M){
+    pyTipData(double m, const bpn::ndarray &cm, const bpn::ndarray &I, const bpn::ndarray &F, const bpn::ndarray &M){
 
         tip.m = m;
 
@@ -70,7 +73,7 @@ struct pyBaseData{
 
     }
 
-    pyBaseData(const bpn::array &k, double infinity){
+    pyBaseData(const bpn::ndarray &k, double infinity){
 
         for (int i = 0; i < 6; i++) {
             base.k[i] = bp::extract<double>(k[i]);
@@ -87,9 +90,9 @@ struct pySectionData {
 
     SectionData sec;
 
-    pySectionData(int np, const bpn::array &z_np, const bpn::array &EA_np,
-                const bpn::array &EIxx_np, const bpn::array &EIyy_np, const bpn::array &GJ_np,
-                const bpn::array &rhoA_np, const bpn::array &rhoJ_np){
+    pySectionData(int np, const bpn::ndarray &z_np, const bpn::ndarray &EA_np,
+                const bpn::ndarray &EIxx_np, const bpn::ndarray &EIyy_np, const bpn::ndarray &GJ_np,
+                const bpn::ndarray &rhoA_np, const bpn::ndarray &rhoJ_np){
 
         sec.nodes = np;
 
@@ -121,7 +124,7 @@ struct pyPolynomialSectionData {
 
     PolynomialSectionData sec;
 
-    pyPolynomialSectionData(int nodes, const bpn::array &z_np, const bpn::array &nA_np, const bpn::array &nI_np,
+    pyPolynomialSectionData(int nodes, const bpn::ndarray &z_np, const bpn::ndarray &nA_np, const bpn::ndarray &nI_np,
                             const bp::list &EA_list, const bp::list &EIxx_list, const bp::list &EIyy_list,
                             const bp::list &GJ_list, const bp::list &rhoA_list, const bp::list &rhoJ_list){
 
@@ -210,8 +213,8 @@ struct pyLoads {
 
     }
 
-    pyLoads(int np, const bpn::array &Px_np, const bpn::array &Py_np,
-            const bpn::array &Pz_np){
+    pyLoads(int np, const bpn::ndarray &Px_np, const bpn::ndarray &Py_np,
+            const bpn::ndarray &Pz_np){
 
         loads.nodes = np;
 
@@ -241,9 +244,9 @@ struct pyLoads {
 
     }
 
-    pyLoads(int np, const bpn::array &Px_np, const bpn::array &Py_np, const bpn::array &Pz_np,
-            const bpn::array &Fx_np, const bpn::array &Fy_np, const bpn::array &Fz_np,
-            const bpn::array &Mx_np, const bpn::array &My_np, const bpn::array &Mz_np){
+    pyLoads(int np, const bpn::ndarray &Px_np, const bpn::ndarray &Py_np, const bpn::ndarray &Pz_np,
+            const bpn::ndarray &Fx_np, const bpn::ndarray &Fy_np, const bpn::ndarray &Fz_np,
+            const bpn::ndarray &Mx_np, const bpn::ndarray &My_np, const bpn::ndarray &Mz_np){
 
         loads.nodes = np;
 
@@ -279,9 +282,9 @@ struct pyPolynomialLoads {
 
     PolynomialLoads loads;
 
-    pyPolynomialLoads(int nodes, const bpn::array &nP_np, const bp::list &Px_list, const bp::list &Py_list, const bp::list &Pz_list,
-            const bpn::array &Fx_np, const bpn::array &Fy_np, const bpn::array &Fz_np,
-            const bpn::array &Mx_np, const bpn::array &My_np, const bpn::array &Mz_np){
+    pyPolynomialLoads(int nodes, const bpn::ndarray &nP_np, const bp::list &Px_list, const bp::list &Py_list, const bp::list &Pz_list,
+            const bpn::ndarray &Fx_np, const bpn::ndarray &Fy_np, const bpn::ndarray &Fz_np,
+            const bpn::ndarray &Mx_np, const bpn::ndarray &My_np, const bpn::ndarray &Mz_np){
 
         loads.nodes = nodes;
 
@@ -342,7 +345,7 @@ public:
 // MARK: ---------------- CONSTRUCTORS --------------------------
 
     // cylindrical shell sections
-    pyBEAM(int nodes, const bpn::array &z_np, const bpn::array &d_np, const bpn::array &t_np,
+    pyBEAM(int nodes, const bpn::ndarray &z_np, const bpn::ndarray &d_np, const bpn::ndarray &t_np,
            const bp::object &loads_o, const bp::object &mat_o,
            const bp::object &tip_o, const bp::object &base_o){
 
@@ -443,7 +446,7 @@ public:
      freq - a numpy array of frequencies (not necessarily of length n as described above).
 
      **/
-    bpn::array computeNaturalFrequencies(int n){
+    bpn::ndarray computeNaturalFrequencies(int n){
 
         Vector vec(n);
         beam->computeNaturalFrequencies(n, vec);
@@ -569,8 +572,8 @@ public:
      epsilon_axial - a numpy array containing axial strain at point (x(i), y(i), z(i)) due to axial loads and bi-directional bending
 
      **/
-    bpn::array computeAxialStrain(int length, const bpn::array &x_np, const bpn::array &y_np,
-                                  const bpn::array &z_np){
+    bpn::ndarray computeAxialStrain(int length, const bpn::ndarray &x_np, const bpn::ndarray &y_np,
+                                  const bpn::ndarray &z_np){
 
 
         Vector x(length);
@@ -644,6 +647,10 @@ public:
 BOOST_PYTHON_MODULE(_pBEAM)
 {
 
+    Py_Initialize();
+    bpn::initialize();
+    //bpn::ndarray::set_module_and_type("numpy", "ndarray");
+
     struct beam_pickle : bp::pickle_suite{
         static bp::tuple getinitargs(const pyBEAM& b){
 
@@ -652,9 +659,7 @@ BOOST_PYTHON_MODULE(_pBEAM)
     };
 
 
-    bpn::array::set_module_and_type("numpy", "ndarray");
-
-    bp::class_<pyBEAM>("Beam", bp::init<int, bpn::array, bpn::array, bpn::array,
+    bp::class_<pyBEAM>("Beam", bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray,
                        bp::object, bp::object, bp::object, bp::object>())
     .def(bp::init<bp::object, bp::object, bp::object, bp::object>())
     .def(bp::init<bp::object, bp::object, bp::object, bp::object, int>())
@@ -670,11 +675,11 @@ BOOST_PYTHON_MODULE(_pBEAM)
 //    .def_pickle(beam_pickle())
     ;
 
-    bp::class_<pyTipData>("TipData", bp::init<double, bpn::array, bpn::array, bpn::array, bpn::array>())
+    bp::class_<pyTipData>("TipData", bp::init<double, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>())
     .def(bp::init<>())
     ;
 
-    bp::class_<pyBaseData>("BaseData", bp::init<bpn::array, double>())
+    bp::class_<pyBaseData>("BaseData", bp::init<bpn::ndarray, double>())
     .def(bp::init<>())
     ;
 
@@ -684,18 +689,18 @@ BOOST_PYTHON_MODULE(_pBEAM)
     .def_readwrite("rho", &IsotropicMaterial::rho)
     ;
 
-    bp::class_<pySectionData>("SectionData", bp::init<int, bpn::array, bpn::array, bpn::array,
-        bpn::array, bpn::array, bpn::array, bpn::array>());
+    bp::class_<pySectionData>("SectionData", bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray,
+        bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>());
 
-    bp::class_<pyPolynomialSectionData>("PolySectionData", bp::init<int, bpn::array, bpn::array,
-        bpn::array, bp::list, bp::list, bp::list, bp::list, bp::list, bp::list>());
+    bp::class_<pyPolynomialSectionData>("PolySectionData", bp::init<int, bpn::ndarray, bpn::ndarray,
+        bpn::ndarray, bp::list, bp::list, bp::list, bp::list, bp::list, bp::list>());
 
-    bp::class_<pyLoads>("Loads", bp::init<int, bpn::array, bpn::array, bpn::array,
-        bpn::array, bpn::array, bpn::array, bpn::array, bpn::array, bpn::array>())
-    .def(bp::init<int, bpn::array, bpn::array, bpn::array>())
+    bp::class_<pyLoads>("Loads", bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray,
+        bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>())
+    .def(bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray>())
     .def(bp::init<int>())
     ;
 
-    bp::class_<pyPolynomialLoads>("PolyLoads", bp::init<int, bpn::array, bp::list, bp::list, bp::list,
-                        bpn::array, bpn::array, bpn::array, bpn::array, bpn::array, bpn::array>());
+    bp::class_<pyPolynomialLoads>("PolyLoads", bp::init<int, bpn::ndarray, bp::list, bp::list, bp::list,
+                        bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>());
 }
