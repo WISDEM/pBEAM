@@ -6,7 +6,9 @@
 //  Copyright (c) 2012 NREL. All rights reserved.
 //
 
+#define CATCH_CONFIG_MAIN
 
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE pBEAMTests
-#include <boost/test/unit_test.hpp>
+#include "catch.hpp"
+
+TEST_CASE( "1: All test cases reside in other .cpp files (empty)", "[multi-file:1]" ) {
+}

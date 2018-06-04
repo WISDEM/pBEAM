@@ -1,6 +1,6 @@
-#CXX = clang++
-CFLAGS = -O2
-INCL = -I./
+CXX = clang++
+CFLAGS = -O2 -g -fPIC -std=c++11
+INCL = -I./ -I/opt/local/include
 OBJ = Poly.o myMath.o BeamFEA.o Beam.o
 #LIB = -framework Accelerate
 

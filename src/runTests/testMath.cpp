@@ -6,20 +6,18 @@
 //  Copyright (c) 2012 NREL. All rights reserved.
 //
 
-#define BOOST_TEST_DYN_LINK
-#ifdef STAND_ALONE
-#define BOOST_TEST_MODULE pbeamTests
-#endif
-#include <boost/test/unit_test.hpp>
+#include "catch.hpp"
 
 #include "myMath.h"
 
-BOOST_AUTO_TEST_SUITE( math )
-
+/* Compile with:
+#define CATCH_CONFIG_MAIN
+clang++ -std=c++11 -Wall -I../pBEAM -I/opt/local/include -L/opt/local/lib -L/opt/local/lib/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7 -o cTest testMath.cpp ../pBEAM/myMath.o
+*/
 
 using namespace myMath;
 
-BOOST_AUTO_TEST_CASE( eig ){
+TEST_CASE( "eig" ){
     
     using namespace boost;
     
@@ -42,12 +40,12 @@ BOOST_AUTO_TEST_CASE( eig ){
 
     int result = generalizedEigenvalues(A, B, 1, eig);
     
-    BOOST_CHECK(result == 0);
+    REQUIRE(result == 0);
     
     double tol = 1e-8;
-    BOOST_CHECK_CLOSE(eig(0), -0.024733114462918, tol);
-    BOOST_CHECK_CLOSE(eig(1), 0.771999972563689, tol);
-    BOOST_CHECK_CLOSE(eig(2), 4.232127081293167, tol);
+    REQUIRE(eig(0) == Approx(-0.024733114462918).epsilon(tol));
+    REQUIRE(eig(1) == Approx(0.771999972563689).epsilon(tol));
+    REQUIRE(eig(2) == Approx(4.232127081293167).epsilon(tol));
     
     
 }
@@ -57,7 +55,7 @@ BOOST_AUTO_TEST_CASE( eig ){
 
 
 
-BOOST_AUTO_TEST_CASE( linear_solve ){
+TEST_CASE( "linear_solve" ){
     
 
     Matrix A(3, 3);
@@ -76,15 +74,12 @@ BOOST_AUTO_TEST_CASE( linear_solve ){
     
     int result = solveSPDBLinearSystem(A, b, superDiag, x);
     
-    BOOST_CHECK(result == 0);
+    REQUIRE(result == 0);
     
     double tol = 1e-8;
-    BOOST_CHECK_CLOSE(x(0), 6.803999999999998, tol);
-    BOOST_CHECK_CLOSE(x(1), -13.832727272727267, tol);
-    BOOST_CHECK_CLOSE(x(2), 5.438666666666664, tol);
+    REQUIRE(x(0) == Approx(6.803999999999998).epsilon(tol));
+    REQUIRE(x(1) == Approx(-13.832727272727267).epsilon(tol));
+    REQUIRE(x(2) == Approx(5.438666666666664).epsilon(tol));
     
     
 }
-
-
-BOOST_AUTO_TEST_SUITE_END()

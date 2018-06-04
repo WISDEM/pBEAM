@@ -6,22 +6,18 @@
 //  Copyright (c) 2012 NREL. All rights reserved.
 //
 
+#include "catch.hpp"
 
-#define BOOST_TEST_DYN_LINK
-#ifdef STAND_ALONE
-#define BOOST_TEST_MODULE pbeamTests
-#endif
-#include <boost/test/unit_test.hpp>
 #include <math.h>
 #include "Beam.h"
 
-BOOST_AUTO_TEST_SUITE( beam )
-
-
-
+/* Compile with:
+#define CATCH_CONFIG_MAIN
+clang++ -std=c++11 -Wall -I../pBEAM -I./ -I/opt/local/include -L/opt/local/lib -L/opt/local/lib/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7 -o cTest testBeam.cpp ../pBEAM/Beam.o ../pBEAM/Poly.o ../pBEAM/myMath.o ../pBEAM/BeamFEA.o
+*/
 
 // Test data from "Finite Element Structural Analysis", Yang, pg. 145
-BOOST_AUTO_TEST_CASE( cantilever_deflection ){
+TEST_CASE( "cantilever_deflection" ){
 
 
     double E = 2.0;
@@ -92,16 +88,16 @@ BOOST_AUTO_TEST_CASE( cantilever_deflection ){
     beam.computeDisplacement(dx, dy, dz, dtheta_x, dtheta_y, dtheta_z);
 
     double tol = 1e-8;
-    BOOST_CHECK_CLOSE(dx(0), 0.0, tol);
-    BOOST_CHECK_CLOSE(dx(1), -p0*pow(L,3)/E/I*L/30, tol);
-    BOOST_CHECK_CLOSE(dtheta_y(0), 0.0, tol);
-    BOOST_CHECK_CLOSE(dtheta_y(1), -p0*pow(L,3)/E/I*1.0/24, tol);
+    REQUIRE(dx(0) == Approx(0.0).epsilon(tol));
+    REQUIRE(dx(1) == Approx(-p0*pow(L,3)/E/I*L/30).epsilon(tol));
+    REQUIRE(dtheta_y(0) == Approx(0.0).epsilon(tol));
+    REQUIRE(dtheta_y(1) == Approx(-p0*pow(L,3)/E/I*1.0/24).epsilon(tol));
 
 }
 
 
 // Test data from "Finite Element Structural Analysis", Yang, pg. 180
-BOOST_AUTO_TEST_CASE( tapered_deflections ){
+TEST_CASE( "tapered_deflections" ){
 
 
     //double r = 8.0;
@@ -180,10 +176,10 @@ BOOST_AUTO_TEST_CASE( tapered_deflections ){
 
     double tol_pct_1 = 0.17;
     double tol_pct_2 = 0.77;
-    BOOST_CHECK_CLOSE(dx(0), 0.0, 1e-8);
-    BOOST_CHECK_CLOSE(dx(nodes-1), -0.051166*P*pow(L,3)/E/I, tol_pct_1);
-    BOOST_CHECK_CLOSE(dtheta_y(0), 0.0, 1e-8);
-    BOOST_CHECK_CLOSE(dtheta_y(nodes-1), -0.090668*P*L*L/E/I, tol_pct_2);
+    REQUIRE(dx(0) == Approx(0.0).epsilon(1e-8));
+    REQUIRE(dx(nodes-1) == Approx(-0.051166*P*pow(L,3)/E/I).epsilon(tol_pct_1));
+    REQUIRE(dtheta_y(0) == Approx(0.0).epsilon(1e-8));
+    REQUIRE(dtheta_y(nodes-1) == Approx(-0.090668*P*L*L/E/I).epsilon(tol_pct_2));
 
 }
 
@@ -191,7 +187,7 @@ BOOST_AUTO_TEST_CASE( tapered_deflections ){
 // Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
 // Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
 // pg. 168
-BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_1 ){
+TEST_CASE( "freq_free_free_beam_n_1" ){
 
     double E = 2.0;
     double I = 3.0;
@@ -265,11 +261,11 @@ BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_1 ){
     double alpha = m * pow(n*L, 4) / (840.0 * E * I);
 
     double tol_pct = 5e-6*100;
-    BOOST_CHECK_CLOSE(freq(1), sqrt(0.85714 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(2), sqrt(0.85714 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(1) == Approx(sqrt(0.85714 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(2) == Approx(sqrt(0.85714 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(freq(4), sqrt(10.0 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(5), sqrt(10.0 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(4) == Approx(sqrt(10.0 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(5) == Approx(sqrt(10.0 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
 
 }
@@ -278,7 +274,7 @@ BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_1 ){
 // Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
 // Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
 // pg. 168
-BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_2 ){
+TEST_CASE( "freq_free_free_beam_n_2" ){
 
     double E = 2.0;
     double I = 3.0;
@@ -351,17 +347,17 @@ BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_2 ){
     double alpha = m * pow(n*L, 4) / (840.0 * E * I);
 
     double tol_pct = 6e-6*100;
-    BOOST_CHECK_CLOSE(freq(1), sqrt(0.59858 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(2), sqrt(0.59858 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(1) == Approx(sqrt(0.59858 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(2) == Approx(sqrt(0.59858 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(freq(5), sqrt(5.8629 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(6), sqrt(5.8629 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(5) == Approx(sqrt(5.8629 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(6) == Approx(sqrt(5.8629 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(freq(8), sqrt(36.659 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(9), sqrt(36.659 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(8) == Approx(sqrt(36.659 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(9) == Approx(sqrt(36.659 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(freq(10), sqrt(93.566 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(11), sqrt(93.566 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(10) == Approx(sqrt(93.566 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(11) == Approx(sqrt(93.566 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
 
 }
@@ -371,7 +367,7 @@ BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_2 ){
 // Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
 // Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
 // pg. 168
-BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_3 ){
+TEST_CASE( "freq_free_free_beam_n_3" ){
 
     double E = 2.0;
     double I = 3.0;
@@ -444,30 +440,30 @@ BOOST_AUTO_TEST_CASE( freq_free_free_beam_n_3 ){
     double alpha = m * pow(n*L, 4) / (840.0 * E * I);
 
     double tol_pct = 6e-6*100;
-    BOOST_CHECK_CLOSE(freq(1), sqrt(0.59919 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(2), sqrt(0.59919 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(1) == Approx(sqrt(0.59919 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(2) == Approx(sqrt(0.59919 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(freq(5), sqrt(4.5750 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(6), sqrt(4.5750 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(5) == Approx(sqrt(4.5750 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(6) == Approx(sqrt(4.5750 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(freq(8), sqrt(22.010 / alpha) / (2*M_PI), .00105);
-    BOOST_CHECK_CLOSE(freq(9), sqrt(22.010 / alpha) / (2*M_PI), .00105);
+    REQUIRE(freq(8) == Approx(sqrt(22.010 / alpha) / (2*M_PI)).epsilon(.00105));
+    REQUIRE(freq(9) == Approx(sqrt(22.010 / alpha) / (2*M_PI)).epsilon(.00105));
 
-    BOOST_CHECK_CLOSE(freq(11), sqrt(70.920 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(12), sqrt(70.920 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(11) == Approx(sqrt(70.920 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(12) == Approx(sqrt(70.920 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(freq(14), sqrt(265.91 / alpha) / (2*M_PI), 0.00073);
-    BOOST_CHECK_CLOSE(freq(15), sqrt(265.91 / alpha) / (2*M_PI), 0.00073);
+    REQUIRE(freq(14) == Approx(sqrt(265.91 / alpha) / (2*M_PI)).epsilon(0.00073));
+    REQUIRE(freq(15) == Approx(sqrt(265.91 / alpha) / (2*M_PI)).epsilon(0.00073));
 
-    BOOST_CHECK_CLOSE(freq(16), sqrt(402.40 / alpha) / (2*M_PI), tol_pct);
-    BOOST_CHECK_CLOSE(freq(17), sqrt(402.40 / alpha) / (2*M_PI), tol_pct);
+    REQUIRE(freq(16) == Approx(sqrt(402.40 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(17) == Approx(sqrt(402.40 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
 
 }
 
 
 // unit test data from Euler's buckling formula for a clamped/free beam
-BOOST_AUTO_TEST_CASE( buckling_euler ){
+TEST_CASE( "buckling_euler" ){
 
     double E = 2.0;
     double I = 3.0;
@@ -540,8 +536,8 @@ BOOST_AUTO_TEST_CASE( buckling_euler ){
 
 
     double tol_pct = 0.011;
-    BOOST_CHECK_CLOSE(Pcr_x, E * I * pow(M_PI/2.0/Ltotal, 2), tol_pct);
-    BOOST_CHECK_CLOSE(Pcr_y, E * I * pow(M_PI/2.0/Ltotal, 2), tol_pct);
+    REQUIRE(Pcr_x == Approx(E * I * pow(M_PI/2.0/Ltotal, 2)).epsilon(tol_pct));
+    REQUIRE(Pcr_y == Approx(E * I * pow(M_PI/2.0/Ltotal, 2)).epsilon(tol_pct));
 
 }
 
@@ -701,7 +697,7 @@ double computeCriticalFactorForTaperedBeamBuckling(int nEI, int nq, double m_sta
 
 // Test data from "Theory of Elastic Stability", Timoshenko, pg. 138-139
 // for a tapered beam buckling under self-weight
-BOOST_AUTO_TEST_CASE( buckling_tapered ){
+TEST_CASE( "buckling_tapered" ){
 
     int nEI = 0;
     int nq = 0;
@@ -710,7 +706,7 @@ BOOST_AUTO_TEST_CASE( buckling_tapered ){
     double q0_delta = 0.01;
     double m = computeCriticalFactorForTaperedBeamBuckling(nEI, nq, q0_start, q0_finish, q0_delta);
 
-    BOOST_CHECK_CLOSE(m, 7.84, 0.06);
+    REQUIRE(m == Approx(7.84).epsilon(0.06));
 
 
     nEI = 1;
@@ -720,7 +716,7 @@ BOOST_AUTO_TEST_CASE( buckling_tapered ){
     q0_delta = 0.01;
     m = computeCriticalFactorForTaperedBeamBuckling(nEI, nq, q0_start, q0_finish, q0_delta);
 
-    BOOST_CHECK_CLOSE(m, 5.78, 0.06);
+    REQUIRE(m == Approx(5.78).epsilon(0.06));
 
     nEI = 0;
     nq = 1;
@@ -729,7 +725,7 @@ BOOST_AUTO_TEST_CASE( buckling_tapered ){
     q0_delta = 0.01;
     m = computeCriticalFactorForTaperedBeamBuckling(nEI, nq, q0_start, q0_finish, q0_delta);
 
-    BOOST_CHECK_CLOSE(m, 16.1, 0.06);
+    REQUIRE(m == Approx(16.1).epsilon(0.06));
 
 
     nEI = 1;
@@ -739,14 +735,14 @@ BOOST_AUTO_TEST_CASE( buckling_tapered ){
     q0_delta = 0.01;
     m = computeCriticalFactorForTaperedBeamBuckling(nEI, nq, q0_start, q0_finish, q0_delta);
 
-    BOOST_CHECK_CLOSE(m, 13.0, 0.1);
+    REQUIRE(m == Approx(13.0).epsilon(0.1));
 
 }
 
 
 // Test data from "Mechanical of Materials", Gere, 6th ed., pg. 273
 // cantilevered beam with linear distributed load
-BOOST_AUTO_TEST_CASE( shear_bending_simple ){
+TEST_CASE( "shear_bending_simple" ){
 
     double L = 10.0;
     double q0 = 3.0;
@@ -820,14 +816,14 @@ BOOST_AUTO_TEST_CASE( shear_bending_simple ){
 
 
     double tol_pct = 1e-8;
-    BOOST_CHECK_CLOSE(Vx(0)(0), q0*L/2.0, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(0)(1), -q0*L, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(0)(2), q0*L/2.0, tol_pct);
+    REQUIRE(Vx(0)(0) == Approx(q0*L/2.0).epsilon(tol_pct));
+    REQUIRE(Vx(0)(1) == Approx(-q0*L).epsilon(tol_pct));
+    REQUIRE(Vx(0)(2) == Approx(q0*L/2.0).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(Mx(0)(0), -q0*L*L/6.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(0)(1), 3.0*q0*L*L/6.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(0)(2), -3.0*q0*L*L/6.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(0)(3), q0*L*L/6.0, tol_pct);
+    REQUIRE(Mx(0)(0) == Approx(-q0*L*L/6.0).epsilon(tol_pct));
+    REQUIRE(Mx(0)(1) == Approx(3.0*q0*L*L/6.0).epsilon(tol_pct));
+    REQUIRE(Mx(0)(2) == Approx(-3.0*q0*L*L/6.0).epsilon(tol_pct));
+    REQUIRE(Mx(0)(3) == Approx(q0*L*L/6.0).epsilon(tol_pct));
 
 
 }
@@ -836,7 +832,7 @@ BOOST_AUTO_TEST_CASE( shear_bending_simple ){
 
 // Test data from "Mechanical of Materials", Gere, 6th ed., pg. 288
 // cantilevered beam with two point loads
-BOOST_AUTO_TEST_CASE( shear_bending_simple_pt ){
+TEST_CASE( "shear_bending_simple_pt" ){
 
     double L = 10.0;
     double P1 = 2.0;
@@ -923,36 +919,36 @@ BOOST_AUTO_TEST_CASE( shear_bending_simple_pt ){
 
 
     double tol_pct = 1e-8;
-    BOOST_CHECK_EQUAL(Vx(0).length(), 3);
-    BOOST_CHECK_CLOSE(Vx(0)(0), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(0)(1), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(0)(2), -P1-P2, tol_pct);
+    REQUIRE(Vx(0).length()== 3);
+    REQUIRE(Vx(0)(0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx(0)(1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx(0)(2) == Approx(-P1-P2).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(Vx(1)(0), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(1)(1), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(1)(2), -P1, tol_pct);
+    REQUIRE(Vx(1)(0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx(1)(1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx(1)(2) == Approx(-P1).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(Vx(2)(0), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(2)(1), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Vx(2)(2), -P1, tol_pct);
+    REQUIRE(Vx(2)(0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx(2)(1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx(2)(2) == Approx(-P1).epsilon(tol_pct));
 
     double b = L/3.0;
     double a = 2.0/3.0*L;
 
-    BOOST_CHECK_CLOSE(Mx(0)(0), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(0)(1), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(0)(2), -P1*a + P1*L + P2*b, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(0)(3), -P1*L - P2*b, tol_pct);
+    REQUIRE(Mx(0)(0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx(0)(1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx(0)(2) == Approx(-P1*a + P1*L + P2*b).epsilon(tol_pct));
+    REQUIRE(Mx(0)(3) == Approx(-P1*L - P2*b).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(Mx(1)(0), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(1)(1), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(1)(2), -0.5*P1*a + P1*a, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(1)(3), -P1*a, tol_pct);
+    REQUIRE(Mx(1)(0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx(1)(1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx(1)(2) == Approx(-0.5*P1*a + P1*a).epsilon(tol_pct));
+    REQUIRE(Mx(1)(3) == Approx(-P1*a).epsilon(tol_pct));
 
-    BOOST_CHECK_CLOSE(Mx(2)(0), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(2)(1), 0.0, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(2)(2), 0.5*P1*a, tol_pct);
-    BOOST_CHECK_CLOSE(Mx(2)(3), -0.5*P1*a, tol_pct);
+    REQUIRE(Mx(2)(0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx(2)(1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx(2)(2) == Approx(0.5*P1*a).epsilon(tol_pct));
+    REQUIRE(Mx(2)(3) == Approx(-0.5*P1*a).epsilon(tol_pct));
 
 
 }
@@ -960,7 +956,7 @@ BOOST_AUTO_TEST_CASE( shear_bending_simple_pt ){
 
 // Test data from Rick Damiani's ANSYS model
 // tower with springs at base, and offset mass
-BOOST_AUTO_TEST_CASE( ricks_tower ){
+TEST_CASE( "ricks_tower" ){
 
     double dmp = 6.2;
     double dtw_base = 6.424;
@@ -1138,8 +1134,6 @@ BOOST_AUTO_TEST_CASE( ricks_tower ){
 //    beam.computeAxialStress(<#Vector &x#>, <#Vector &y#>, <#Vector &z#>, <#Vector &E#>, <#Vector &sigma_axial#>)
 
 //    double tol_pct = 6e-6*100;
-    //BOOST_CHECK_CLOSE(freq(1), sqrt(0.59919 / alpha) / (2*M_PI), tol_pct);
+    //REQUIRE(freq(1), sqrt(0.59919 / alpha) / (2*M_PI)).epsilon(tol_pct));
 
 }
-
-BOOST_AUTO_TEST_SUITE_END()

@@ -1,7 +1,7 @@
-CXX = g++ #clang++
-CFLAGS = -O2
-INCL = -I../pBEAM -I/opt/local/include/boost/test
-LIB = -L/opt/local/lib -lboost_unit_test_framework-mt -llapack
+CXX = clang++
+CFLAGS = -O2 -g -fwrapv -fPIC -std=c++11
+INCL = -I../pBEAM -I/opt/local/include
+LIB = -L/opt/local/lib -L/opt/local/lib/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7
 CORE_OBJ = ../pBEAM/Poly.o ../pBEAM/myMath.o ../pBEAM/BeamFEA.o ../pBEAM/Beam.o
 OBJ = runTests.o testBeam.o testBeamFEA.o testMath.o testPoly.o
 
