@@ -299,15 +299,16 @@ void Beam::naturalFrequencies(bool cmpVec, int n, Vector &freq, Matrix &vec) con
 
 
     // resize vector to largest possible
-    freq.resize(length);
+    std::vector<double> tmpFreq(length);
     vec.resize(length, length);
+    vec.setZero();
 
     int idx = 0;
     Vector idx_save(length);
     for (int i = 0; i < length; i++) {
 
         if (eig(i) > 1e-6) { // don't save rigid modes
-            freq(idx) = sqrt(eig(i)) / (2.0*M_PI);
+            tmpFreq[idx] = sqrt(eig(i)) / (2.0*M_PI);
             idx_save(idx) = i;
             idx++;
         }
@@ -316,7 +317,8 @@ void Beam::naturalFrequencies(bool cmpVec, int n, Vector &freq, Matrix &vec) con
     }
 
     // resize vector to actual length (after removing rigid modes and accounting for user input)
-    freq.resize(idx, true);
+    freq.resize(idx);
+    for (int k=0; k<idx; k++) freq(k) = tmpFreq[k];
 
     // parse eigenvectors
     if (cmpVec) {
@@ -340,26 +342,8 @@ void Beam::naturalFrequencies(bool cmpVec, int n, Vector &freq, Matrix &vec) con
 	    }
 
 	    for (int k=0; k<vec.rows(); k++) vec(k,i) = colVec[k];
-            //ublas::column(vec, i) = colVec;
         }
-
-//        // copy to indirect array
-//        idx_save.resize(idx, true);
-//        boost::numeric::ublas::indirect_array<> indices(idx);
-//        boost::numeric::ublas::indirect_array<> all_indices(length);
-//
-//        for (int i = 0; i < idx; i++) {
-//            indices(i) = idx_save(i);
-//        }
-//        for (int i = 0; i < length; i++) {
-//            all_indices(i) = i;
-//        }
-//
-//        vec = boost::numeric::ublas::project(eig_vec, all_indices, indices);
     }
-
-
-
 }
 
 
