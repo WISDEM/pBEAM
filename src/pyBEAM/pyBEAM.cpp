@@ -154,8 +154,8 @@ struct pyPolynomialSectionData {
                 EA_poly[j] = bp::extract<double>(EA_list[i][j]);
                 rhoA_poly[j] = bp::extract<double>(rhoA_list[i][j]);
             }
-            sec.EA(i) = Poly(nA, EA_poly);
-            sec.rhoA(i) = Poly(nA, rhoA_poly);
+            sec.EA[i] = Poly(nA, EA_poly);
+            sec.rhoA[i] = Poly(nA, rhoA_poly);
 
             double EIxx_poly[nI];
             double EIyy_poly[nI];
@@ -168,10 +168,10 @@ struct pyPolynomialSectionData {
                 GJ_poly[j] = bp::extract<double>(GJ_list[i][j]);
                 rhoJ_poly[j] = bp::extract<double>(rhoJ_list[i][j]);
             }
-            sec.EIxx(i) = Poly(nI, EIxx_poly);
-            sec.EIyy(i) = Poly(nI, EIyy_poly);
-            sec.GJ(i) = Poly(nI, GJ_poly);
-            sec.rhoJ(i) = Poly(nI, rhoJ_poly);
+            sec.EIxx[i] = Poly(nI, EIxx_poly);
+            sec.EIyy[i] = Poly(nI, EIyy_poly);
+            sec.GJ[i] = Poly(nI, GJ_poly);
+            sec.rhoJ[i] = Poly(nI, rhoJ_poly);
 
         }
 
@@ -200,15 +200,15 @@ struct pyLoads {
         loads.Mz.resize(loads.nodes);
 
 
-        loads.Px.clear();
-        loads.Py.clear();
-        loads.Pz.clear();
-        loads.Fx.clear();
-        loads.Fy.clear();
-        loads.Fz.clear();
-        loads.Mx.clear();
-        loads.My.clear();
-        loads.Mz.clear();
+        loads.Px.setZero();
+        loads.Py.setZero();
+        loads.Pz.setZero();
+        loads.Fx.setZero();
+        loads.Fy.setZero();
+        loads.Fz.setZero();
+        loads.Mx.setZero();
+        loads.My.setZero();
+        loads.Mz.setZero();
 
 
     }
@@ -235,12 +235,12 @@ struct pyLoads {
             loads.Pz(i) = bp::extract<double>(Pz_np[i]);
         }
 
-        loads.Fx.clear();
-        loads.Fy.clear();
-        loads.Fz.clear();
-        loads.Mx.clear();
-        loads.My.clear();
-        loads.Mz.clear();
+        loads.Fx.setZero();
+        loads.Fy.setZero();
+        loads.Fz.setZero();
+        loads.Mx.setZero();
+        loads.My.setZero();
+        loads.Mz.setZero();
 
     }
 
@@ -319,9 +319,9 @@ struct pyPolynomialLoads {
                 Py_poly[j] = bp::extract<double>(Py_list[i][j]);
                 Pz_poly[j] = bp::extract<double>(Pz_list[i][j]);
             }
-            loads.Px(i) = Poly(nP, Px_poly);
-            loads.Py(i) = Poly(nP, Py_poly);
-            loads.Pz(i) = Poly(nP, Pz_poly);
+            loads.Px[i] = Poly(nP, Px_poly);
+            loads.Py[i] = Poly(nP, Py_poly);
+            loads.Pz[i] = Poly(nP, Pz_poly);
 
         }
 
@@ -485,10 +485,10 @@ public:
         }
 
         bp::list vec_list;
-        for (int j = 0; j < mat.size2(); j++) {
+        for (int j = 0; j < mat.cols(); j++) {
 
             bp::list inner_list;
-            for (int i = 0; i < mat.size1(); i++) {
+            for (int i = 0; i < mat.rows(); i++) {
                 inner_list.append(mat(i, j));
             }
             vec_list.append(bpn::array(inner_list));
@@ -615,20 +615,20 @@ public:
 
         for(int i = 0; i < n; i++)
         {
-            Vx0.append(Vx(i).eval(0.0));
-            Vy0.append(Vy(i).eval(0.0));
-            Fz0.append(Fz(i).eval(0.0));
-            Mx0.append(-My(i).eval(0.0));  // translate back to global coordinates
-            My0.append(Mx(i).eval(0.0));  // translate back to global coordinates
-            Tz0.append(Tz(i).eval(0.0));
+            Vx0.append(Vx[i].eval(0.0));
+            Vy0.append(Vy[i].eval(0.0));
+            Fz0.append(Fz[i].eval(0.0));
+            Mx0.append(-My[i].eval(0.0));  // translate back to global coordinates
+            My0.append(Mx[i].eval(0.0));  // translate back to global coordinates
+            Tz0.append(Tz[i].eval(0.0));
         }
 
-        Vx0.append(Vx(n-1).eval(1.0));
-        Vy0.append(Vy(n-1).eval(1.0));
-        Fz0.append(Fz(n-1).eval(1.0));
-        Mx0.append(-My(n-1).eval(1.0));  // translate back to global coordinates
-        My0.append(Mx(n-1).eval(1.0));  // translate back to global coordinates
-        Tz0.append(Tz(n-1).eval(1.0));
+        Vx0.append(Vx[n-1].eval(1.0));
+        Vy0.append(Vy[n-1].eval(1.0));
+        Fz0.append(Fz[n-1].eval(1.0));
+        Mx0.append(-My[n-1].eval(1.0));  // translate back to global coordinates
+        My0.append(Mx[n-1].eval(1.0));  // translate back to global coordinates
+        Tz0.append(Tz[n-1].eval(1.0));
 
 
         return bp::make_tuple(bpn::array(Vx0), bpn::array(Vy0), bpn::array(Fz0), bpn::array(Mx0), bpn::array(My0), bpn::array(Tz0));

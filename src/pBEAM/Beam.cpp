@@ -9,10 +9,9 @@
 #define _USE_MATH_DEFINES
 #include <cmath> // for pi
 #include <cstdio> // fprintf
-
+#include <vector>
+#include <iostream>
 #include "Beam.h"
-
-namespace ublas = boost::numeric::ublas;
 
 // MARK: ------------------- CONSTRUCTORS ----------------------------
 
@@ -64,12 +63,12 @@ Beam::Beam(const Vector &z_node, const Vector &d_node, const Vector &t_node,
         Poly J = I + I;
 
         // setup section properties
-        EIxx(i) = mat.E * I;
-        EIyy(i) = mat.E * I;
-        EA(i) = mat.E * A;
-        GJ(i) = mat.G * J;
-        rhoA(i) = mat.rho * A;
-        rhoJ(i) = mat.rho * J;
+        EIxx[i] = mat.E * I;
+        EIyy[i] = mat.E * I;
+        EA[i] = mat.E * A;
+        GJ[i] = mat.G * J;
+        rhoA[i] = mat.rho * A;
+        rhoJ[i] = mat.rho * J;
 
         // linear variation in distributed loads
         Px[i] = Poly(2, loads.Px(i+1) - loads.Px(i), loads.Px(i));
@@ -116,18 +115,19 @@ Beam::Beam(const SectionData& sec, const Loads& loads,
     for (int i = 0; i < nodes-1; i++) {
 
         // define linear variation in properties
-        EIxx(i) = Poly(2, sec.EIxx(i+1) - sec.EIxx(i), sec.EIxx(i));
-        EIyy(i) = Poly(2, sec.EIyy(i+1) - sec.EIyy(i), sec.EIyy(i));
-        EA(i) = Poly(2, sec.EA(i+1) - sec.EA(i), sec.EA(i));
-        GJ(i) = Poly(2, sec.GJ(i+1) - sec.GJ(i), sec.GJ(i));
-        rhoA(i) = Poly(2, sec.rhoA(i+1) - sec.rhoA(i), sec.rhoA(i));
-        rhoJ(i) = Poly(2, sec.rhoJ(i+1) - sec.rhoJ(i), sec.rhoJ(i));
-        Px(i) = Poly(2, loads.Px(i+1) - loads.Px(i), loads.Px(i));
-        Py(i) = Poly(2, loads.Py(i+1) - loads.Py(i), loads.Py(i));
-        Pz(i) = Poly(2, loads.Pz(i+1) - loads.Pz(i), loads.Pz(i));
+        EIxx[i] = Poly(2, sec.EIxx(i+1) - sec.EIxx(i), sec.EIxx(i));
+        EIyy[i] = Poly(2, sec.EIyy(i+1) - sec.EIyy(i), sec.EIyy(i));
+        EA[i] = Poly(2, sec.EA(i+1) - sec.EA(i), sec.EA(i));
+        GJ[i] = Poly(2, sec.GJ(i+1) - sec.GJ(i), sec.GJ(i));
+        rhoA[i] = Poly(2, sec.rhoA(i+1) - sec.rhoA(i), sec.rhoA(i));
+        rhoJ[i] = Poly(2, sec.rhoJ(i+1) - sec.rhoJ(i), sec.rhoJ(i));
+        Px[i] = Poly(2, loads.Px(i+1) - loads.Px(i), loads.Px(i));
+        Py[i] = Poly(2, loads.Py(i+1) - loads.Py(i), loads.Py(i));
+        Pz[i] = Poly(2, loads.Pz(i+1) - loads.Pz(i), loads.Pz(i));
     }
 
     translateFromGlobalToFEACoordinateSystem();
+
     assembleMatrices();
 }
 
@@ -325,17 +325,22 @@ void Beam::naturalFrequencies(bool cmpVec, int n, Vector &freq, Matrix &vec) con
         for (int i = 0; i < idx; i++) {
 
             Vector dx, dy, dz, dtx, dty, dtz;
-            computeDisplacementComponentsFromVector(ublas::column(eig_vec, idx_save(i)), dx, dy, dz, dtx, dty, dtz);
+	    Vector eig_vec_i(eig_vec.rows());
+	    for (int k=0; k<eig_vec.rows(); k++) eig_vec_i[k] = eig_vec(idx_save(i),k);
+            computeDisplacementComponentsFromVector(eig_vec_i, dx, dy, dz, dtx, dty, dtz);
 
             Vector colVec(6*nodes);
-            ublas::subrange(colVec, 0, nodes) = dx;
-            ublas::subrange(colVec, nodes, 2*nodes) = dy;
-            ublas::subrange(colVec, 2*nodes, 3*nodes) = dz;
-            ublas::subrange(colVec, 3*nodes, 4*nodes) = dtx;
-            ublas::subrange(colVec, 4*nodes, 5*nodes) = dty;
-            ublas::subrange(colVec, 5*nodes, 6*nodes) = dtz;
+	    for(int k=0; k<nodes; k++) {
+	      colVec[0*nodes + k] = dx[k];
+	      colVec[1*nodes + k] = dy[k];
+	      colVec[2*nodes + k] = dz[k];
+	      colVec[3*nodes + k] = dtx[k];
+	      colVec[4*nodes + k] = dty[k];
+	      colVec[5*nodes + k] = dtz[k];
+	    }
 
-            ublas::column(vec, i) = colVec;
+	    for (int k=0; k<vec.rows(); k++) vec(k,i) = colVec[k];
+            //ublas::column(vec, i) = colVec;
         }
 
 //        // copy to indirect array
@@ -364,6 +369,7 @@ void Beam::computeDisplacement(Vector &dx, Vector &dy, Vector&dz, Vector &dtheta
 
     // solve linear system
     Vector q(length);
+
     myMath::solveSPDBLinearSystem(K, F, 2*DOF-1, q);
 
     computeDisplacementComponentsFromVector(q, dx, dy, dz, dtheta_x, dtheta_y, dtheta_z);
@@ -374,12 +380,12 @@ void Beam::computeDisplacementComponentsFromVector(const Vector &q, Vector &dx, 
                                                    Vector &dtheta_x, Vector &dtheta_y, Vector &dtheta_z) const{
 
     // resize vectors
-    dx.resize(nodes, false);
-    dy.resize(nodes, false);
-    dz.resize(nodes, false);
-    dtheta_x.resize(nodes, false);
-    dtheta_y.resize(nodes, false);
-    dtheta_z.resize(nodes, false);
+    dx.resize(nodes);
+    dy.resize(nodes);
+    dz.resize(nodes);
+    dtheta_x.resize(nodes);
+    dtheta_y.resize(nodes);
+    dtheta_z.resize(nodes);
 
     // add in rigid directions
     int i;
@@ -456,18 +462,26 @@ double Beam::estimateCriticalBucklingLoad(double FzExisting, int ix1, int ix2) c
 
     // need to find indicies corresponidng only to x-direction
     int idx = 0;
-    ublas::indirect_array<> indices(length);
-    if (!base.rigid[ix1]) indices(idx++) = ix1 - subtract1;
-    if (!base.rigid[ix2]) indices(idx++) = ix2 - subtract2;
+    std::vector<int> indices(length);
+    if (!base.rigid[ix1]) indices[idx++] = ix1 - subtract1;
+    if (!base.rigid[ix2]) indices[idx++] = ix2 - subtract2;
     for (int i = 1; i < nodes; i++) {
-        indices(idx++) = ix1 + i*DOF - subtract;
-        indices(idx++) = ix2 + i*DOF - subtract;
+        indices[idx++] = ix1 + i*DOF - subtract;
+        indices[idx++] = ix2 + i*DOF - subtract;
     }
 
     // copy relavant portions of matrix over
-    Matrix Kbend = project(K, indices, indices);
-    Matrix Nbend = project(N, indices, indices);
-    Matrix Nbend_other = project(Nother, indices, indices);
+    Matrix Kbend(length,length); // = project(K, indices, indices);
+    Matrix Nbend(length,length); // = project(N, indices, indices);
+    Matrix Nbend_other(length,length); // = project(Nother, indices, indices);
+    for (int ii=0; ii<length; ii++) {
+      for (int jj=0; jj<length; jj++) {
+	Kbend(ii,jj) = K(indices[ii], indices[jj]);
+	Nbend(ii,jj) = N(indices[ii], indices[jj]);
+	Nbend_other(ii,jj) = Nother(indices[ii], indices[jj]);
+      }
+    }
+    
 
     // solve eigenvalue problem
     Vector eig(length);
@@ -513,28 +527,28 @@ void Beam::shearAndBending(PolyVec &Vx, PolyVec &Vy, PolyVec &Fz, PolyVec &Mx, P
         double L = z_node(i+1) - z_node(i);
 
         // shear
-        Vx(i) = L * Px(i).backwardsIntegrate() + Vx_prev;
-        Vy(i) = L * Py(i).backwardsIntegrate() + Vy_prev;
+        Vx[i] = L * Px[i].backwardsIntegrate() + Vx_prev;
+        Vy[i] = L * Py[i].backwardsIntegrate() + Vy_prev;
 
         // axial
-        Fz(i) = L * Pz(i).backwardsIntegrate() + Fz_prev;
+        Fz[i] = L * Pz[i].backwardsIntegrate() + Fz_prev;
 
         // moments
-        Mx(i) = L * Vx(i).backwardsIntegrate() + Mx_prev;
-        My(i) = L * Vy(i).backwardsIntegrate() + My_prev;
+        Mx[i] = L * Vx[i].backwardsIntegrate() + Mx_prev;
+        My[i] = L * Vy[i].backwardsIntegrate() + My_prev;
 
         // torsion (no distributed torsion loads yet)
-        Tz(i) = Poly(1, Tz_prev);
+        Tz[i] = Poly(1, Tz_prev);
 
 
         // save value for front of previous element
-        Vx_prev = Vx(i).eval(0.0) + Fx_node(i);
-        Vy_prev = Vy(i).eval(0.0) + Fy_node(i);
-        Fz_prev = Fz(i).eval(0.0) + Fz_node(i);
+        Vx_prev = Vx[i].eval(0.0) + Fx_node[i];
+        Vy_prev = Vy[i].eval(0.0) + Fy_node[i];
+        Fz_prev = Fz[i].eval(0.0) + Fz_node[i];
 
-        Mx_prev = Mx(i).eval(0.0) + Mx_node(i);
-        My_prev = My(i).eval(0.0) + My_node(i);
-        Tz_prev = Tz(i).eval(0.0) + Mz_node(i);
+        Mx_prev = Mx[i].eval(0.0) + Mx_node[i];
+        My_prev = My[i].eval(0.0) + My_node[i];
+        Tz_prev = Tz[i].eval(0.0) + Mz_node[i];
 
     }
 
@@ -572,14 +586,14 @@ void Beam::computeAxialStrain(Vector &x, Vector &y, Vector &z, Vector &epsilon_a
         }
 
         // evalute section properties
-        double EA_sec = EA(idx).eval(distance);
-        double EIxx_sec = EIxx(idx).eval(distance);
-        double EIyy_sec = EIyy(idx).eval(distance);
+        double EA_sec = EA[idx].eval(distance);
+        double EIxx_sec = EIxx[idx].eval(distance);
+        double EIyy_sec = EIyy[idx].eval(distance);
 
         // evalute section forces/moments
-        double Fz_sec = Fz(idx).eval(distance);
-        double Mx_sec = Mx(idx).eval(distance);
-        double My_sec = My(idx).eval(distance);
+        double Fz_sec = Fz[idx].eval(distance);
+        double Mx_sec = Mx[idx].eval(distance);
+        double My_sec = My[idx].eval(distance);
 
         epsilon_axial(i) = Fz_sec/EA_sec - Mx_sec/EIxx_sec*x(i) - My_sec/EIyy_sec*y(i);
 
@@ -639,28 +653,28 @@ void Beam::computeAxialStrain(Vector &x, Vector &y, Vector &z, Vector &epsilon_a
 //    }
 //
 //    // evalute section properties
-//    double EA_sec = EA(idx).eval(distance);
-//    double EIxx_sec = EIxx(idx).eval(distance);
-//    double EIyy_sec = EIyy(idx).eval(distance);
+//    double EA_sec = EA[idx].eval(distance);
+//    double EIxx_sec = EIxx[idx].eval(distance);
+//    double EIyy_sec = EIyy[idx].eval(distance);
 //
 //    // evalute section forces/moments
-//    double Fz_sec = Fz(idx).eval(distance);
-//    double Mx_sec = Mx(idx).eval(distance);
-//    double My_sec = My(idx).eval(distance);
-//    double Tz_sec = Tz(idx).eval(distance);
+//    double Fz_sec = Fz[idx].eval(distance);
+//    double Mx_sec = Mx[idx].eval(distance);
+//    double My_sec = My[idx].eval(distance);
+//    double Tz_sec = Tz[idx].eval(distance);
 //
 //    // derivative of stiffness properties
-//    double dEA_dz = EA(idx).differentiate().eval(distance);
-//    double dESx_dz = ESx(idx).differentiate().eval(distance);
-//    double dESy_dz = ESy(idx).differentiate().eval(distance);
-//    double dEIxx_dz = EIxx(idx).differentiate().eval(distance);
-//    double dEIyy_dz = EIyy(idx).differentiate().eval(distance);
-//    double dEIxy_dz = EIxy(idx).differentiate().eval(distance);
+//    double dEA_dz = EA[idx].differentiate().eval(distance);
+//    double dESx_dz = ESx[idx].differentiate().eval(distance);
+//    double dESy_dz = ESy[idx].differentiate().eval(distance);
+//    double dEIxx_dz = EIxx[idx].differentiate().eval(distance);
+//    double dEIyy_dz = EIyy[idx].differentiate().eval(distance);
+//    double dEIxy_dz = EIxy[idx].differentiate().eval(distance);
 //
 //    // derivative of section forces/moments
-//    double dFz_dz = Fz(idx).differentiate().eval(distance);
-//    double dMx_dz = Mx(idx).differentiate().eval(distance);
-//    double dMy_dz = My(idx).differentiate().eval(distance);
+//    double dFz_dz = Fz[idx].differentiate().eval(distance);
+//    double dMx_dz = Mx[idx].differentiate().eval(distance);
+//    double dMy_dz = My[idx].differentiate().eval(distance);
 //
 //    // compute axial strain
 //    Matrix A(3, 3);

@@ -8,6 +8,7 @@
 
 #include "catch.hpp"
 
+#include <iostream>
 #include <math.h>
 #include "Beam.h"
 
@@ -34,8 +35,8 @@ TEST_CASE( "cantilever_deflection" ){
     Px(0) = -p0;
     Px(1) = 0.0;
 
-    Py.clear();
-    Pz.clear();
+    Py.setZero();
+    Pz.setZero();
 
     Loads loads = Loads(Px, Py, Pz);
 
@@ -112,9 +113,9 @@ TEST_CASE( "tapered_deflections" ){
     Vector Py(nodes);
     Vector Pz(nodes);
 
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    Px.setZero();
+    Py.setZero();
+    Pz.setZero();
 
     Loads loads = Loads(Px, Py, Pz);
 
@@ -202,9 +203,9 @@ TEST_CASE( "freq_free_free_beam_n_1" ){
     Vector Px(nodes);
     Vector Py(nodes);
     Vector Pz(nodes);
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    Px.setZero();
+    Py.setZero();
+    Pz.setZero();
 
     Loads loads = Loads(Px, Py, Pz);
 
@@ -289,9 +290,9 @@ TEST_CASE( "freq_free_free_beam_n_2" ){
     Vector Px(nodes);
     Vector Py(nodes);
     Vector Pz(nodes);
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    Px.setZero();
+    Py.setZero();
+    Pz.setZero();
 
     Loads loads = Loads(Px, Py, Pz);
 
@@ -382,9 +383,9 @@ TEST_CASE( "freq_free_free_beam_n_3" ){
     Vector Px(nodes);
     Vector Py(nodes);
     Vector Pz(nodes);
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    Px.setZero();
+    Py.setZero();
+    Pz.setZero();
 
     Loads loads = Loads(Px, Py, Pz);
 
@@ -511,9 +512,9 @@ TEST_CASE( "buckling_euler" ){
     Vector Px(nodes);
     Vector Py(nodes);
     Vector Pz(nodes);
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    Px.setZero();
+    Py.setZero();
+    Pz.setZero();
 
     Loads loads = Loads(Px, Py, Pz);
 
@@ -575,13 +576,13 @@ double computeCriticalFactorForTaperedBeamBuckling(int nEI, int nq, double m_sta
 
         if (nEI == 0){
 
-            EIx(i) = Poly(1, E*I0_other);
+            EIx[i] = Poly(1, E*I0_other);
 
         } else if (nEI == 1){
 
             double EI1 = (1 - z(i)/L) * E*I0_other;
             double EI2 = (1 - z(i+1)/L) * E*I0_other;
-            EIx(i) = Poly(2, EI2-EI1, EI1);
+            EIx[i] = Poly(2, EI2-EI1, EI1);
         }
     }
 
@@ -591,54 +592,54 @@ double computeCriticalFactorForTaperedBeamBuckling(int nEI, int nq, double m_sta
 
         if (nEI == 0){
 
-            EIy(i) = Poly(1, E*I0);
+            EIy[i] = Poly(1, E*I0);
 
         } else if (nEI == 1){
 
             double EI1 = (1 - z(i)/L) * E*I0;
             double EI2 = (1 - z(i+1)/L) * E*I0;
-            EIy(i) = Poly(2, EI2-EI1, EI1);
+            EIy[i] = Poly(2, EI2-EI1, EI1);
         }
     }
 
     PolyVec EA(nodes-1);
     for (int i = 0; i < nodes-1; i++) {
-        EA(i) = Poly(1, 1.0);
+        EA[i] = Poly(1, 1.0);
     }
 
     PolyVec GJ(nodes-1);
     for (int i = 0; i < nodes-1; i++) {
-        GJ(i) = Poly(1, 1.0);
+        GJ[i] = Poly(1, 1.0);
     }
 
     PolyVec rhoA(nodes-1);
     for (int i = 0; i < nodes-1; i++) {
-        rhoA(i) = Poly(1, 1.0);
+        rhoA[i] = Poly(1, 1.0);
     }
 
     PolyVec rhoJ(nodes-1);
     for (int i = 0; i < nodes-1; i++) {
-        rhoJ(i) = Poly(1, 1.0);
+        rhoJ[i] = Poly(1, 1.0);
     }
 
     PolyVec Px(nodes-1);
     for (int i = 0; i < nodes-1; i++) {
-        Px(i) = Poly(1, 0.0);
+        Px[i] = Poly(1, 0.0);
     }
 
     PolyVec Py(nodes-1);
     for (int i = 0; i < nodes-1; i++) {
-        Py(i) = Poly(1, 0.0);
+        Py[i] = Poly(1, 0.0);
     }
 
 
     Vector Fx(nodes), Fy(nodes), Fz(nodes), Mx(nodes), My(nodes), Mz(nodes);
-    Fx.clear();
-    Fy.clear();
-    Fz.clear();
-    Mx.clear();
-    My.clear();
-    Mz.clear();
+    Fx.setZero();
+    Fy.setZero();
+    Fz.setZero();
+    Mx.setZero();
+    My.setZero();
+    Mz.setZero();
 
     double Pcr_x, Pcr_y;
     double Pcr_x_prev;
@@ -661,13 +662,13 @@ double computeCriticalFactorForTaperedBeamBuckling(int nEI, int nq, double m_sta
 
             if (nq == 0){
 
-                Pz(i) = Poly(1, q0);
+                Pz[i] = Poly(1, q0);
 
             } else if (nq == 1){
 
                 double Pz1 = (1 - z(i)/L) * q0;
                 double Pz2 = (1 - z(i+1)/L) * q0;
-                Pz(i) = Poly(2, Pz2-Pz1, Pz1);
+                Pz[i] = Poly(2, Pz2-Pz1, Pz1);
             }
         }
 
@@ -789,9 +790,9 @@ TEST_CASE( "shear_bending_simple" ){
     Vector Px(nodes);
     Vector Py(nodes);
     Vector Pz(nodes);
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    Px.setZero();
+    Py.setZero();
+    Pz.setZero();
 
     for (int i = 0; i < nodes; i++) {
         Px(i) = q0*(1 - z(i)/L);
@@ -816,14 +817,14 @@ TEST_CASE( "shear_bending_simple" ){
 
 
     double tol_pct = 1e-8;
-    REQUIRE(Vx(0)(0) == Approx(q0*L/2.0).epsilon(tol_pct));
-    REQUIRE(Vx(0)(1) == Approx(-q0*L).epsilon(tol_pct));
-    REQUIRE(Vx(0)(2) == Approx(q0*L/2.0).epsilon(tol_pct));
+    REQUIRE(Vx[0](0) == Approx(q0*L/2.0).epsilon(tol_pct));
+    REQUIRE(Vx[0](1) == Approx(-q0*L).epsilon(tol_pct));
+    REQUIRE(Vx[0](2) == Approx(q0*L/2.0).epsilon(tol_pct));
 
-    REQUIRE(Mx(0)(0) == Approx(-q0*L*L/6.0).epsilon(tol_pct));
-    REQUIRE(Mx(0)(1) == Approx(3.0*q0*L*L/6.0).epsilon(tol_pct));
-    REQUIRE(Mx(0)(2) == Approx(-3.0*q0*L*L/6.0).epsilon(tol_pct));
-    REQUIRE(Mx(0)(3) == Approx(q0*L*L/6.0).epsilon(tol_pct));
+    REQUIRE(Mx[0](0) == Approx(-q0*L*L/6.0).epsilon(tol_pct));
+    REQUIRE(Mx[0](1) == Approx(3.0*q0*L*L/6.0).epsilon(tol_pct));
+    REQUIRE(Mx[0](2) == Approx(-3.0*q0*L*L/6.0).epsilon(tol_pct));
+    REQUIRE(Mx[0](3) == Approx(q0*L*L/6.0).epsilon(tol_pct));
 
 
 }
@@ -878,24 +879,24 @@ TEST_CASE( "shear_bending_simple_pt" ){
     }
 
     Vector ESx(nodes), ESy(nodes), EIxy(nodes);
-    ESx.clear();
-    ESy.clear();
-    EIxy.clear();
+    ESx.setZero();
+    ESy.setZero();
+    EIxy.setZero();
 
     Vector Px(nodes);
     Vector Py(nodes);
     Vector Pz(nodes);
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    Px.setZero();
+    Py.setZero();
+    Pz.setZero();
 
     Vector Fx_pt(nodes), Fy_pt(nodes), Fz_pt(nodes), Mx_pt(nodes), My_pt(nodes), Mz_pt(nodes);
-    Fx_pt.clear();
-    Fy_pt.clear();
-    Fz_pt.clear();
-    Mx_pt.clear();
-    My_pt.clear();
-    Mz_pt.clear();
+    Fx_pt.setZero();
+    Fy_pt.setZero();
+    Fz_pt.setZero();
+    Mx_pt.setZero();
+    My_pt.setZero();
+    Mz_pt.setZero();
 
     Fx_pt(1) = -P2;
     Fx_pt(3) = -P1;
@@ -919,36 +920,36 @@ TEST_CASE( "shear_bending_simple_pt" ){
 
 
     double tol_pct = 1e-8;
-    REQUIRE(Vx(0).length()== 3);
-    REQUIRE(Vx(0)(0) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Vx(0)(1) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Vx(0)(2) == Approx(-P1-P2).epsilon(tol_pct));
+    REQUIRE(Vx[0].length()== 3);
+    REQUIRE(Vx[0](0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx[0](1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx[0](2) == Approx(-P1-P2).epsilon(tol_pct));
 
-    REQUIRE(Vx(1)(0) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Vx(1)(1) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Vx(1)(2) == Approx(-P1).epsilon(tol_pct));
+    REQUIRE(Vx[1](0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx[1](1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx[1](2) == Approx(-P1).epsilon(tol_pct));
 
-    REQUIRE(Vx(2)(0) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Vx(2)(1) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Vx(2)(2) == Approx(-P1).epsilon(tol_pct));
+    REQUIRE(Vx[2](0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx[2](1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Vx[2](2) == Approx(-P1).epsilon(tol_pct));
 
     double b = L/3.0;
     double a = 2.0/3.0*L;
 
-    REQUIRE(Mx(0)(0) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Mx(0)(1) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Mx(0)(2) == Approx(-P1*a + P1*L + P2*b).epsilon(tol_pct));
-    REQUIRE(Mx(0)(3) == Approx(-P1*L - P2*b).epsilon(tol_pct));
+    REQUIRE(Mx[0](0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx[0](1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx[0](2) == Approx(-P1*a + P1*L + P2*b).epsilon(tol_pct));
+    REQUIRE(Mx[0](3) == Approx(-P1*L - P2*b).epsilon(tol_pct));
 
-    REQUIRE(Mx(1)(0) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Mx(1)(1) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Mx(1)(2) == Approx(-0.5*P1*a + P1*a).epsilon(tol_pct));
-    REQUIRE(Mx(1)(3) == Approx(-P1*a).epsilon(tol_pct));
+    REQUIRE(Mx[1](0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx[1](1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx[1](2) == Approx(-0.5*P1*a + P1*a).epsilon(tol_pct));
+    REQUIRE(Mx[1](3) == Approx(-P1*a).epsilon(tol_pct));
 
-    REQUIRE(Mx(2)(0) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Mx(2)(1) == Approx(0.0).epsilon(tol_pct));
-    REQUIRE(Mx(2)(2) == Approx(0.5*P1*a).epsilon(tol_pct));
-    REQUIRE(Mx(2)(3) == Approx(-0.5*P1*a).epsilon(tol_pct));
+    REQUIRE(Mx[2](0) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx[2](1) == Approx(0.0).epsilon(tol_pct));
+    REQUIRE(Mx[2](2) == Approx(0.5*P1*a).epsilon(tol_pct));
+    REQUIRE(Mx[2](3) == Approx(-0.5*P1*a).epsilon(tol_pct));
 
 
 }
@@ -989,12 +990,12 @@ TEST_CASE( "ricks_tower" ){
     double A = M_PI * dmp * dmp/76.938;
     for (int i = 1; i <= n_mp_bot; i++){
         z(idx+i) = z(idx) + (double)i/n_mp_bot*(2.0*dmp);
-        EIx(idx+i-1) = Poly(1, E*I);
-        EIy(idx+i-1) = Poly(1, E*I);
-        EA(idx+i-1) = Poly(1, E*A);
-        GJ(idx+i-1) = Poly(1, G*(I+I));
-        rhoA(idx+i-1) = Poly(1, rho*A);
-        rhoJ(idx+i-1) = Poly(1, rho*(I+I));
+        EIx[idx+i-1] = Poly(1, E*I);
+        EIy[idx+i-1] = Poly(1, E*I);
+        EA[idx+i-1] = Poly(1, E*A);
+        GJ[idx+i-1] = Poly(1, G*(I+I));
+        rhoA[idx+i-1] = Poly(1, rho*A);
+        rhoJ[idx+i-1] = Poly(1, rho*(I+I));
     }
     idx += n_mp_bot;
 
@@ -1004,12 +1005,12 @@ TEST_CASE( "ricks_tower" ){
     A = M_PI * dmp * dmp/100.0;
     for (int i = 1; i <= n_mp_top; i++){
         z(idx+i) = z(idx) + (double)i/n_mp_top*(25.0 + 5.0 - 0.5*dmp - 2.0*dmp);
-        EIx(idx+i-1) = Poly(1, E*I);
-        EIy(idx+i-1) = Poly(1, E*I);
-        EA(idx+i-1) = Poly(1, E*A);
-        GJ(idx+i-1) = Poly(1, G*(I+I));
-        rhoA(idx+i-1) = Poly(1, rho*A);
-        rhoJ(idx+i-1) = Poly(1, rho*(I+I));
+        EIx[idx+i-1] = Poly(1, E*I);
+        EIy[idx+i-1] = Poly(1, E*I);
+        EA[idx+i-1] = Poly(1, E*A);
+        GJ[idx+i-1] = Poly(1, G*(I+I));
+        rhoA[idx+i-1] = Poly(1, rho*A);
+        rhoJ[idx+i-1] = Poly(1, rho*(I+I));
     }
     idx += n_mp_top;
 
@@ -1023,12 +1024,12 @@ TEST_CASE( "ricks_tower" ){
     double A3 = M_PI / 4.0 * (pow(dtw_base-0.062, 2) - pow(dmp+dmp/100.0, 2));
     for (int i = 1; i <= n_ov; i++){
         z(idx+i) = z(idx) + (double)i/n_ov*(0.5*dmp);
-        EIx(idx+i-1) = Poly(1, E*I1 + E*I2 + E_grout*I3);
-        EIy(idx+i-1) = Poly(1, E*I1 + E*I2 + E_grout*I3);
-        EA(idx+i-1) = Poly(1, E*A1 + E*A2 + E_grout*A3);
-        GJ(idx+i-1) = Poly(1, G*2*I1 + G*2*I2 + G_grout*2*I3);
-        rhoA(idx+i-1) = Poly(1, rho*A1 + rho*A2 + rho_grout*A3);
-        rhoJ(idx+i-1) = Poly(1, rho*2*I1 + rho*2*I2 + rho_grout*2*I3);
+        EIx[idx+i-1] = Poly(1, E*I1 + E*I2 + E_grout*I3);
+        EIy[idx+i-1] = Poly(1, E*I1 + E*I2 + E_grout*I3);
+        EA[idx+i-1] = Poly(1, E*A1 + E*A2 + E_grout*A3);
+        GJ[idx+i-1] = Poly(1, G*2*I1 + G*2*I2 + G_grout*2*I3);
+        rhoA[idx+i-1] = Poly(1, rho*A1 + rho*A2 + rho_grout*A3);
+        rhoJ[idx+i-1] = Poly(1, rho*2*I1 + rho*2*I2 + rho_grout*2*I3);
     }
     idx += n_ov;
 
@@ -1038,12 +1039,12 @@ TEST_CASE( "ricks_tower" ){
     A = M_PI * dtw_base * 0.062;
     for (int i = 1; i <= n_ts; i++){
         z(idx+i) = z(idx) + (double)i/n_ts*(18.05 - 0.5*dmp);
-        EIx(idx+i-1) = Poly(1, E*I);
-        EIy(idx+i-1) = Poly(1, E*I);
-        EA(idx+i-1) = Poly(1, E*A);
-        GJ(idx+i-1) = Poly(1, G*(I+I));
-        rhoA(idx+i-1) = Poly(1, rho*A);
-        rhoJ(idx+i-1) = Poly(1, rho*(I+I));
+        EIx[idx+i-1] = Poly(1, E*I);
+        EIy[idx+i-1] = Poly(1, E*I);
+        EA[idx+i-1] = Poly(1, E*A);
+        GJ[idx+i-1] = Poly(1, G*(I+I));
+        rhoA[idx+i-1] = Poly(1, rho*A);
+        rhoJ[idx+i-1] = Poly(1, rho*(I+I));
     }
     idx += n_ts;
 
@@ -1057,12 +1058,12 @@ TEST_CASE( "ricks_tower" ){
         Poly t = d / 120.0;
         Poly Itw = M_PI / 8.0 * d * d * d* t;
         Poly Atw = M_PI * d * t;
-        EIx(idx+i-1) = E * Itw;
-        EIy(idx+i-1) = E * Itw;
-        EA(idx+i-1) = E * Atw;
-        GJ(idx+i-1) = G * 2*Itw;
-        rhoA(idx+i-1) = rho * Atw;
-        rhoJ(idx+i-1) = rho * 2*Itw;
+        EIx[idx+i-1] = E * Itw;
+        EIy[idx+i-1] = E * Itw;
+        EA[idx+i-1] = E * Atw;
+        GJ[idx+i-1] = G * 2*Itw;
+        rhoA[idx+i-1] = rho * Atw;
+        rhoJ[idx+i-1] = rho * 2*Itw;
     }
     idx += n_tw;
 
@@ -1078,17 +1079,17 @@ TEST_CASE( "ricks_tower" ){
     PolyVec Px(nodes-1);
     PolyVec Py(nodes-1);
     PolyVec Pz(nodes-1);
-    Px.clear();
-    Py.clear();
-    Pz.clear();
+    //Px.setZero();
+    //Py.setZero();
+    //Pz.setZero();
 
     Vector Fx_pt(nodes), Fy_pt(nodes), Fz_pt(nodes), Mx_pt(nodes), My_pt(nodes), Mz_pt(nodes);
-    Fx_pt.clear();
-    Fy_pt.clear();
-    Fz_pt.clear();
-    Mx_pt.clear();
-    My_pt.clear();
-    Mz_pt.clear();
+    Fx_pt.setZero();
+    Fy_pt.setZero();
+    Fz_pt.setZero();
+    Mx_pt.setZero();
+    My_pt.setZero();
+    Mz_pt.setZero();
 
     double m = 5.7380e5;
     double Ixx = 86.579e6;

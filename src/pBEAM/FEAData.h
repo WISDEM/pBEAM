@@ -13,11 +13,12 @@
  This header defines a few pieces of data used throughout the finite element analysis.
  
  **/
+#include <vector>
 #include "Poly.h"
 
 #define DOF 6
 
-typedef boost::numeric::ublas::vector<Poly> PolyVec;
+typedef std::vector<Poly> PolyVec;
 
 struct TipData{
     
@@ -209,16 +210,18 @@ struct Loads {
         Mx.resize(nodes);
         My.resize(nodes);
         Mz.resize(nodes);
-        
-        Px.clear();
-        Py.clear();
-        Pz.clear();
-        Fx.clear();
-        Fy.clear();
-        Fz.clear();
-        Mx.clear();
-        My.clear();
-        Mz.clear();
+
+	for (int k=0; k<nodes; k++) {
+	  Px[k] = 0.0;
+	  Py[k] = 0.0;
+	  Pz[k] = 0.0;
+	  Fx[k] = 0.0;
+	  Fy[k] = 0.0;
+	  Fz[k] = 0.0;
+	  Mx[k] = 0.0;
+	  My[k] = 0.0;
+	  Mz[k] = 0.0;
+	}
         
     }
     
@@ -234,12 +237,14 @@ struct Loads {
         My.resize(nodes);
         Mz.resize(nodes);
         
-        Fx.clear();
-        Fy.clear();
-        Fz.clear();
-        Mx.clear();
-        My.clear();
-        Mz.clear();
+	for (int k=0; k<nodes; k++) {
+	  Fx[k] = 0.0;
+	  Fy[k] = 0.0;
+	  Fz[k] = 0.0;
+	  Mx[k] = 0.0;
+	  My[k] = 0.0;
+	  Mz[k] = 0.0;
+	}
     }
     
     /**

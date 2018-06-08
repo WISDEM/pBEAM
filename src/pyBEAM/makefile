@@ -4,7 +4,7 @@ INCDIR = /opt/local/include
 LIBDIR = /opt/local/lib
 PYTHON_INCL = /opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
 #INCL = -I$(INCDIR) -I$(PY_FRAMEWORK)/include/python2.7 -I../pBEAM
-INCL = -I../pBEAM -I$(INCDIR) -I$(PYTHON_INCL)
+INCL = -I../pBEAM -I../ -I$(INCDIR) -I$(PYTHON_INCL)
 OBJ = ../pBEAM/Poly.o ../pBEAM/myMath.o ../pBEAM/BeamFEA.o ../pBEAM/Beam.o
 LIB = -L $(LIBDIR) -L $(LIBDIR)/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7
 

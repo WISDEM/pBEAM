@@ -45,7 +45,7 @@ namespace myMath {
     // solves generalized eigenvalue problem Ax = lambda * Bx
     int generalizedEigenvalues(bool cmpVec, const Matrix &A, const Matrix &B, int superDiag, Vector &eig, Matrix &eig_vec){
         
-        int N = (int) A.size1();
+        int N = (int) A.rows();
          
         char jobz = 'N'; // compute eigenvalues only
         if (cmpVec) {
@@ -129,7 +129,7 @@ namespace myMath {
 
     int solveSPDBLinearSystem(const Matrix &A, const Vector &b, int superDiag, Vector &x){
         
-        int N = (int) A.size1();
+        int N = (int) A.rows();
         
         char uplo = 'U'; // symmetric matrix stored in upper triangular
         int kd = superDiag;
@@ -172,7 +172,7 @@ namespace myMath {
     //TODO: add unit test for this
     int solveLinearSystem(const Matrix &A, const Vector &b, Vector &x){
         
-        int N = (int) A.size1();
+        int N = (int) A.rows();
         
         int lda = N;
         int ldb = N;

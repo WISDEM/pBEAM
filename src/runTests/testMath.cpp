@@ -19,7 +19,7 @@ using namespace myMath;
 
 TEST_CASE( "eig" ){
     
-    using namespace boost;
+  //using namespace boost;
     
     int N = 3;
     

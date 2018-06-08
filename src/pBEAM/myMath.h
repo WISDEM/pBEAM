@@ -10,14 +10,10 @@
 #ifndef pbeam_myMath_h
 #define pbeam_myMath_h
 
+#include <Eigen/Dense>
 
-#include "boost/numeric/ublas/matrix.hpp"
-#include "boost/numeric/ublas/vector.hpp"
-#include "boost/numeric/ublas/matrix_proxy.hpp"
-#include "boost/numeric/ublas/vector_proxy.hpp"
-
-typedef boost::numeric::ublas::matrix<double> Matrix;
-typedef boost::numeric::ublas::vector<double> Vector;
+typedef Eigen::MatrixXd Matrix;
+typedef Eigen::VectorXd Vector;
 
 
 

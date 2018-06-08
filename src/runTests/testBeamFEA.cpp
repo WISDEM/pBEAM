@@ -105,8 +105,8 @@ TEST_CASE( "int_comp_loads" ){
     Poly Poly0(2, (Pz1-Pz0), Pz0);
     Poly Poly1(2, (Pz2-Pz1), Pz1);
     PolyVec Pz(2);
-    Pz(0) = Poly0;
-    Pz(1) = Poly1;
+    Pz[0] = Poly0;
+    Pz[1] = Poly1;
     
     PolyVec FzFromPz;
     integrateDistributedCompressionLoads(z, Pz, FzFromPz);
@@ -116,10 +116,10 @@ TEST_CASE( "int_comp_loads" ){
     double Fz0 = (z(1) - z(0))/2.0*(Pz1 + Pz0) + Fz1;
     
     double tol = 1e-8;
-    REQUIRE(FzFromPz(1).eval(1.0) <= tol);
-    REQUIRE(Fz1 == Approx(FzFromPz(1).eval(0.0)).epsilon(tol));
-    REQUIRE(Fz1 == Approx(FzFromPz(0).eval(1.0)).epsilon(tol));
-    REQUIRE(Fz0 == Approx(FzFromPz(0).eval(0.0)).epsilon(tol));
+    REQUIRE(FzFromPz[1].eval(1.0) <= tol);
+    REQUIRE(Fz1 == Approx(FzFromPz[1].eval(0.0)).epsilon(tol));
+    REQUIRE(Fz1 == Approx(FzFromPz[0].eval(1.0)).epsilon(tol));
+    REQUIRE(Fz0 == Approx(FzFromPz[0].eval(0.0)).epsilon(tol));
     
 
     
@@ -269,8 +269,8 @@ TEST_CASE( "tip" ){
     Matrix M(DOF*nodes, DOF*nodes);
     Vector F(DOF*nodes);
     
-    M.clear();
-    F.clear();
+    M.setZero();
+    F.setZero();
     
     addTipMassContribution(tip, nodes, M, F);
     
