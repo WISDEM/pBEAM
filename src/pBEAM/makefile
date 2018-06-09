@@ -1,5 +1,5 @@
 CXX = clang++
-CFLAGS = -O2 -g -fPIC -std=c++11
+CFLAGS = -O3 -g -fPIC -std=c++11
 INCL = -I ../
 OBJ = Poly.o myMath.o BeamFEA.o Beam.o
 

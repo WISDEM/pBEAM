@@ -10,11 +10,6 @@
 
 #include "BeamFEA.h"
 
-/* Compile with
-#define CATCH_CONFIG_MAIN
-clang++ -std=c++11 -Wall -I../pBEAM -I/opt/local/include -L/opt/local/lib -L/opt/local/lib/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7 -o cTest testBeamFEA.cpp ../pBEAM/BeamFEA.o ../pBEAM/Poly.o
-*/
-
 using namespace BeamFEA;
 
 TEST_CASE( "matrix_assem" ){

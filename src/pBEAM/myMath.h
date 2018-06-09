@@ -37,7 +37,6 @@ namespace myMath {
      Arguments:
      A - matrix on left hand side of generalized eigenvalue problem (must be size N x N)
      B - matrix on right hand side of generalized eigenvalue problem (must be size N x N)
-     superDiag - number of super diagonals.  must be >= 0 (zero would be a diagonal matrix)
      
      Out:
      eig - vector of eigenvalues sorted in ascending order (must be of length N)
@@ -47,8 +46,8 @@ namespace myMath {
      int - an integer describing exit condition.  0 is successful.  For other errors see dsbgv documentation.
      
      **/
-    int generalizedEigenvalues(const Matrix &A, const Matrix &B, int superDiag, Vector &eig);
-    int generalizedEigenvalues(const Matrix &A, const Matrix &B, int superDiag, Vector &eig, Matrix &eig_vec);
+    int generalizedEigenvalues(const Matrix &A, const Matrix &B, Vector &eig);
+    int generalizedEigenvalues(const Matrix &A, const Matrix &B, Vector &eig, Matrix &eig_vec);
     
     /**
      Solves the linear system Ax = b
@@ -59,7 +58,6 @@ namespace myMath {
      Arguments:
      A - matrix in linear system (N x N)
      b - right hand side vector (length N)
-     (superDiag) - number of super diagonals.  must be >= 0 (zero would be a diagonal matrix)
 
      Out:
      x - least squares solution to linear system (length N)
@@ -68,7 +66,7 @@ namespace myMath {
      int - an integer describing exit condition.  0 is successful.  For other errors see dpbsv or dgesv documentation.
      
      **/
-    int solveSPDBLinearSystem(const Matrix &A, const Vector &b, int superDiag, Vector &x);
+    int solveSPDBLinearSystem(const Matrix &A, const Vector &b, Vector &x);
     int solveLinearSystem(const Matrix &A, const Vector &b, Vector &x);
     
     

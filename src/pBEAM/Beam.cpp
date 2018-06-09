@@ -137,12 +137,12 @@ Beam::Beam(const SectionData& sec, const Loads& loads,
 // init directly with polynomial data
 Beam::Beam(const PolynomialSectionData& sec, const PolynomialLoads& loads,
            const TipData &tip, const BaseData &base)
-: nodes(sec.nodes), z_node(sec.z), EA(sec.EA),
-EIxx(sec.EIxx), EIyy(sec.EIyy), GJ(sec.GJ),
-rhoA(sec.rhoA), rhoJ(sec.rhoJ), Px(loads.Px), Py(loads.Py), Pz(loads.Pz),
-Fx_node(loads.Fx), Fy_node(loads.Fy), Fz_node(loads.Fz),
-Mx_node(loads.Mx), My_node(loads.My), Mz_node(loads.Mz),
-tip(tip), base(base)
+  : nodes(sec.nodes), z_node(sec.z), EA(sec.EA),
+    EIxx(sec.EIxx), EIyy(sec.EIyy), GJ(sec.GJ),
+    rhoA(sec.rhoA), rhoJ(sec.rhoJ), Px(loads.Px), Py(loads.Py), Pz(loads.Pz),
+    Fx_node(loads.Fx), Fy_node(loads.Fy), Fz_node(loads.Fz),
+    Mx_node(loads.Mx), My_node(loads.My), Mz_node(loads.Mz),
+    tip(tip), base(base)
 {
 
     translateFromGlobalToFEACoordinateSystem();
@@ -292,9 +292,9 @@ void Beam::naturalFrequencies(bool cmpVec, int n, Vector &freq, Matrix &vec) con
     Matrix eig_vec(0, 0);
 
     if (cmpVec) {
-        myMath::generalizedEigenvalues(K, M, 2*DOF-1, eig, eig_vec);
+        myMath::generalizedEigenvalues(K, M, eig, eig_vec);
     } else {
-        myMath::generalizedEigenvalues(K, M, 2*DOF-1, eig);
+        myMath::generalizedEigenvalues(K, M, eig);
     }
 
 
@@ -354,7 +354,7 @@ void Beam::computeDisplacement(Vector &dx, Vector &dy, Vector&dz, Vector &dtheta
     // solve linear system
     Vector q(length);
 
-    myMath::solveSPDBLinearSystem(K, F, 2*DOF-1, q);
+    myMath::solveSPDBLinearSystem(K, F, q);
 
     computeDisplacementComponentsFromVector(q, dx, dy, dz, dtheta_x, dtheta_y, dtheta_z);
 }
@@ -469,8 +469,7 @@ double Beam::estimateCriticalBucklingLoad(double FzExisting, int ix1, int ix2) c
 
     // solve eigenvalue problem
     Vector eig(length);
-    int superDiag = 2*2-1;
-    int result = myMath::generalizedEigenvalues(Kbend - Nbend_other, Nbend, superDiag, eig);
+    int result = myMath::generalizedEigenvalues(Kbend - Nbend_other, Nbend, eig);
 
     if (result != 0){
         printf("error in eigenvalue analysis (error code: %d)\n", result);

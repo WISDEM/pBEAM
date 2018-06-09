@@ -12,11 +12,6 @@
 #include <math.h>
 #include "Beam.h"
 
-/* Compile with:
-#define CATCH_CONFIG_MAIN
-clang++ -std=c++11 -Wall -I../pBEAM -I./ -I/opt/local/include -L/opt/local/lib -L/opt/local/lib/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7 -o cTest testBeam.cpp ../pBEAM/Beam.o ../pBEAM/Poly.o ../pBEAM/myMath.o ../pBEAM/BeamFEA.o
-*/
-
 // Test data from "Finite Element Structural Analysis", Yang, pg. 145
 TEST_CASE( "cantilever_deflection" ){
 

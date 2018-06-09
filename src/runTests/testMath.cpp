@@ -10,11 +10,6 @@
 
 #include "myMath.h"
 
-/* Compile with:
-#define CATCH_CONFIG_MAIN
-clang++ -std=c++11 -Wall -I../pBEAM -I/opt/local/include -L/opt/local/lib -L/opt/local/lib/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7 -o cTest testMath.cpp ../pBEAM/myMath.o
-*/
-
 using namespace myMath;
 
 TEST_CASE( "eig" ){
@@ -24,12 +19,14 @@ TEST_CASE( "eig" ){
     int N = 3;
     
     Matrix A(N, N);
+    A.setZero();
     
     A(0, 0) = 1.0;   A(0, 1) = 2.0;
     A(1, 0) = 2.0;   A(1, 1) = 5.0;   A(1, 2) = 3.0;
                      A(2, 1) = 3.0;   A(2, 2) = 7.0;
     
     Matrix B(N, N);
+    B.setZero();
     
     B(0, 0) = 4.0;   B(0, 1) = 1.1;
     B(1, 0) = 1.1;   B(1, 1) = 2.2;   B(1, 2) = 3.3;
@@ -38,7 +35,7 @@ TEST_CASE( "eig" ){
 
     Vector eig(N);
 
-    int result = generalizedEigenvalues(A, B, 1, eig);
+    int result = generalizedEigenvalues(A, B, eig);
     
     REQUIRE(result == 0);
     
@@ -59,6 +56,7 @@ TEST_CASE( "linear_solve" ){
     
 
     Matrix A(3, 3);
+    A.setZero();
     
     A(0, 0) = 4.0;   A(0, 1) = 1.1;
     A(1, 0) = 1.1;   A(1, 1) = 2.2;   A(1, 2) = 3.3;
@@ -70,9 +68,8 @@ TEST_CASE( "linear_solve" ){
     b(2) = 3.3;
     
     Vector x(3);
-    int superDiag = 1;
     
-    int result = solveSPDBLinearSystem(A, b, superDiag, x);
+    int result = solveSPDBLinearSystem(A, b, x);
     
     REQUIRE(result == 0);
     

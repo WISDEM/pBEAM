@@ -12,11 +12,6 @@
 
 #include "Poly.h"
 
-/* Compile with:
-#define CATCH_CONFIG_MAIN
-clang++ -std=c++11 -Wall -I../pBEAM -I./ -o cTest testPoly.cpp ../pBEAM/Poly.o
-*/
-
 TEST_CASE( "paren" ){
     
     double x1[3] = {1.9, 2.4, 5.2};

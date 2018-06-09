@@ -1,12 +1,12 @@
 CXX = clang++
-CFLAGS = -O2 -g -fwrapv -fPIC -std=c++11
+CFLAGS = -O2 -g -fPIC -std=c++11
 INCDIR = /opt/local/include
 LIBDIR = /opt/local/lib
 PYTHON_INCL = /opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
 #INCL = -I$(INCDIR) -I$(PY_FRAMEWORK)/include/python2.7 -I../pBEAM
 INCL = -I../pBEAM -I../ -I$(INCDIR) -I$(PYTHON_INCL)
 OBJ = ../pBEAM/Poly.o ../pBEAM/myMath.o ../pBEAM/BeamFEA.o ../pBEAM/Beam.o
-LIB = -L $(LIBDIR) -L $(LIBDIR)/lapack -lboost_python-mt -lboost_numpy-mt -llapack -lblas -lpython2.7
+LIB = -L $(LIBDIR) -lboost_python-mt -lboost_numpy-mt -lpython2.7
 
 pybeam: pyBEAM.o
 #	$(CXX) -bundle -undefined dynamic_lookup -Wl,-headerpad_max_install_names $(LIB) pyBeam.o $(OBJ) -o _pBEAM.so
