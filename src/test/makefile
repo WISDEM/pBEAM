@@ -6,10 +6,10 @@ OBJ = runTests.o testBeam.o testBeamFEA.o testMath.o testPoly.o
 
 
 all: $(OBJ)
-	$(CXX) $(CORE_OBJ) $(OBJ) -o tests
+	$(CXX) $(CORE_OBJ) $(OBJ) -o runTests
 
 %.o : %.cpp
 	$(CXX) $(CFLAGS) $(INCL) -c $<
 
 clean:
-	rm -f *.o tests
+	rm -f *.o runTests

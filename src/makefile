@@ -1,19 +1,19 @@
 
-all: py test
+all: py unit
 
 py:
 	cd pBEAM; make
 	cd pyBEAM; make
 	mv pyBEAM/_pBEAM.so .
 
-test:
+unit:
 	cd pBEAM; make
-	cd runTests; make
-	mv runTests/tests .
-	./tests
+	cd test; make
+	mv test/runTests .
+	./runTests
 
 clean:
 	cd pBEAM; make clean
 	cd pyBEAM; make clean
-	cd runTests; make clean
-	rm -f _pBEAM.so tests
+	cd test; make clean
+	rm -f _pBEAM.so runTests
