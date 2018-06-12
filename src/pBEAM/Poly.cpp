@@ -10,8 +10,10 @@
 #include <cmath>
 #include <iostream>
 #include <cstdarg>  // needed for some compilers for var args
+#include <vector>
 
 #include "Poly.h"
+#include "myMath.h"
 
 using namespace std;
 
@@ -37,7 +39,22 @@ Poly::Poly(int length, double x[]){
     for (int i = 0; i < length; i++) {
         p[i] = x[i];
     }
-    
+}
+
+Poly::Poly(int length, vector<double> x){
+    n = length;
+    p = new double[n];
+    for (int i = 0; i < length; i++) {
+        p[i] = x[i];
+    }
+}
+
+Poly::Poly(int length, Vector x){
+    n = length;
+    p = new double[n];
+    for (int i = 0; i < length; i++) {
+        p[i] = x[i];
+    }
 }
 
 Poly::Poly(int length, ...){

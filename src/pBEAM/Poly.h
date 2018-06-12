@@ -9,6 +9,8 @@
 #ifndef pbeam_Poly_h
 #define pbeam_Poly_h
 
+#include <vector>
+#include "myMath.h"
 
 /**
  This class represents a polynomial.
@@ -49,6 +51,8 @@ public:
      
      **/
     Poly(int length, double x[]);
+  Poly(int length, std::vector<double> x);
+  Poly(int length, Vector x);
     
     
     /**

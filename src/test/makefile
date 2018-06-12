@@ -1,6 +1,6 @@
 CXX = clang++
 CFLAGS = -O3 -g -fPIC -std=c++11
-INCL = -I../pBEAM -I../
+INCL = -I../pBEAM -I../include
 CORE_OBJ = ../pBEAM/Poly.o ../pBEAM/myMath.o ../pBEAM/BeamFEA.o ../pBEAM/Beam.o
 OBJ = runTests.o testBeam.o testBeamFEA.o testMath.o testPoly.o
 

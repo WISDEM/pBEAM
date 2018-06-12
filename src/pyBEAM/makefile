@@ -1,16 +1,15 @@
 CXX = clang++
 CFLAGS = -O2 -g -fPIC -std=c++11
-INCDIR = /opt/local/include
-LIBDIR = /opt/local/lib
-PYTHON_INCL = /opt/local/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
+#INCDIR = /opt/local/include
+#LIBDIR = /opt/local/lib
 #INCL = -I$(INCDIR) -I$(PY_FRAMEWORK)/include/python2.7 -I../pBEAM
-INCL = -I../pBEAM -I../ -I$(INCDIR) -I$(PYTHON_INCL)
+INCL = -I../pBEAM -I../include `python-config --includes`
 OBJ = ../pBEAM/Poly.o ../pBEAM/myMath.o ../pBEAM/BeamFEA.o ../pBEAM/Beam.o
-LIB = -L $(LIBDIR) -lboost_python-mt -lboost_numpy-mt -lpython2.7
+#LIB = -L $(LIBDIR) -lboost_python-mt -lboost_numpy-mt -lpython2.7
 
 pybeam: pyBEAM.o
 #	$(CXX) -bundle -undefined dynamic_lookup -Wl,-headerpad_max_install_names $(LIB) pyBeam.o $(OBJ) -o _pBEAM.so
-	$(CXX) -dynamiclib $(LIB) pyBeam.o $(OBJ) -o _pBEAM.so
+	$(CXX) $(INCL) $(CFLAGS) -dynamiclib -undefined dynamic_lookup -shared pyBeam.o $(OBJ) -o _pBEAM.so
 
 .cpp.o:
 	$(CXX) $(INCL) $(CFLAGS) -c $< -o $@

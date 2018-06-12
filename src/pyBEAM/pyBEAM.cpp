@@ -6,58 +6,46 @@
 //  Copyright (c) 2012 NREL. All rights reserved.
 //
 
-#include <boost/python.hpp>
-#include <boost/python/numpy.hpp>
+#include <pybind11/pybind11.h>
+#include <pybind11/eigen.h>
 #include "myMath.h"
 #include "FEAData.h"
 #include "Beam.h"
 
 
-namespace bp = boost::python;
-// GBarter 01/29/2017 as of boost 1.65 the Boost Python numeric library is obsoleted by the numpy library
-//namespace bpn = boost::python::numeric;
-namespace bpn = boost::python::numpy;
-
-
+namespace py = pybind11;
 
 //MARK: ---------- WRAPPER FOR TIP DATA ---------------------
 
 struct pyTipData{
 
-    TipData tip;
+  TipData tip;
 
-    pyTipData(){
+  pyTipData(){}
 
-    }
+  pyTipData(double m, const Vector &cm, const Vector &I, const Vector &F, const Vector &M){
 
-    pyTipData(double m, const bpn::ndarray &cm, const bpn::ndarray &I, const bpn::ndarray &F, const bpn::ndarray &M){
+    tip.m = m;
 
-        tip.m = m;
+    tip.cm_offsetX = cm[0];
+    tip.cm_offsetY = cm[1];
+    tip.cm_offsetZ = cm[2];
 
-        tip.cm_offsetX = bp::extract<double>(cm[0]);
-        tip.cm_offsetY = bp::extract<double>(cm[1]);
-        tip.cm_offsetZ = bp::extract<double>(cm[2]);
+    tip.Ixx = I[0];
+    tip.Iyy = I[1];
+    tip.Izz = I[2];
+    tip.Ixy = I[3];
+    tip.Ixz = I[4];
+    tip.Iyz = I[5];
 
-        tip.Ixx = bp::extract<double>(I[0]);
-        tip.Iyy = bp::extract<double>(I[1]);
-        tip.Izz = bp::extract<double>(I[2]);
-        tip.Ixy = bp::extract<double>(I[3]);
-        tip.Ixz = bp::extract<double>(I[4]);
-        tip.Iyz = bp::extract<double>(I[5]);
+    tip.Fx = F[0];
+    tip.Fy = F[1];
+    tip.Fz = F[2];
 
-        tip.Fx = bp::extract<double>(F[0]);
-        tip.Fy = bp::extract<double>(F[1]);
-        tip.Fz = bp::extract<double>(F[2]);
-
-        tip.Mx = bp::extract<double>(M[0]);
-        tip.My = bp::extract<double>(M[1]);
-        tip.Mz = bp::extract<double>(M[2]);
-
-    }
-
-
-
-
+    tip.Mx = M[0];
+    tip.My = M[1];
+    tip.Mz = M[2];
+  }
 };
 
 
@@ -66,20 +54,17 @@ struct pyTipData{
 
 struct pyBaseData{
 
-    BaseData base;
+  BaseData base;
 
-    // free end
-    pyBaseData(){
+  pyBaseData(){}
 
+  pyBaseData(const Vector &k, double infinity){
+
+    for (int i = 0; i < 6; i++) {
+      base.k[i] = k[i];
+      base.rigid[i] = (base.k[i] == infinity);
     }
-
-    pyBaseData(const bpn::ndarray &k, double infinity){
-
-        for (int i = 0; i < 6; i++) {
-            base.k[i] = bp::extract<double>(k[i]);
-            base.rigid[i] = (base.k[i] == infinity);
-        }
-    }
+  }
 
 };
 
@@ -88,94 +73,54 @@ struct pyBaseData{
 
 struct pySectionData {
 
-    SectionData sec;
+  SectionData sec;
 
-    pySectionData(int np, const bpn::ndarray &z_np, const bpn::ndarray &EA_np,
-                const bpn::ndarray &EIxx_np, const bpn::ndarray &EIyy_np, const bpn::ndarray &GJ_np,
-                const bpn::ndarray &rhoA_np, const bpn::ndarray &rhoJ_np){
+  pySectionData(int np, const Vector &z_np, const Vector &EA_np,
+                const Vector &EIxx_np, const Vector &EIyy_np, const Vector &GJ_np,
+                const Vector &rhoA_np, const Vector &rhoJ_np){
 
-        sec.nodes = np;
+    sec.nodes = np;
 
-        sec.z.resize(sec.nodes);
-        sec.EA.resize(sec.nodes);
-        sec.EIxx.resize(sec.nodes);
-        sec.EIyy.resize(sec.nodes);
-        sec.GJ.resize(sec.nodes);
-        sec.rhoA.resize(sec.nodes);
-        sec.rhoJ.resize(sec.nodes);
-
-
-        for (int i = 0 ; i < sec.nodes; i++){
-            sec.z(i) = bp::extract<double>(z_np[i]);
-            sec.EA(i) = bp::extract<double>(EA_np[i]);
-            sec.EIxx(i) = bp::extract<double>(EIxx_np[i]);
-            sec.EIyy(i) = bp::extract<double>(EIyy_np[i]);
-            sec.GJ(i) = bp::extract<double>(GJ_np[i]);
-            sec.rhoA(i) = bp::extract<double>(rhoA_np[i]);
-            sec.rhoJ(i) = bp::extract<double>(rhoJ_np[i]);
-        }
-
-
-
-    }
+    sec.z = z_np;
+    sec.EA = EA_np;
+    sec.EIxx = EIxx_np;
+    sec.EIyy = EIyy_np;
+    sec.GJ = GJ_np;
+    sec.rhoA = rhoA_np;
+    sec.rhoJ = rhoJ_np;
+  }
 };
 
 struct pyPolynomialSectionData {
 
-    PolynomialSectionData sec;
+  PolynomialSectionData sec;
 
-    pyPolynomialSectionData(int nodes, const bpn::ndarray &z_np, const bpn::ndarray &nA_np, const bpn::ndarray &nI_np,
-                            const bp::list &EA_list, const bp::list &EIxx_list, const bp::list &EIyy_list,
-                            const bp::list &GJ_list, const bp::list &rhoA_list, const bp::list &rhoJ_list){
+  pyPolynomialSectionData(int nodes, const Vector &z_np, const Vector &nA_np, const Vector &nI_np,
+			  const Matrix &EA_np, const Matrix &EIxx_np, const Matrix &EIyy_np,
+			  const Matrix &GJ_np, const Matrix &rhoA_np, const Matrix &rhoJ_np){
 
-        sec.nodes = nodes;
+    sec.nodes = nodes;
 
-        sec.z.resize(sec.nodes);
-        sec.EA.resize(sec.nodes-1);
-        sec.EIxx.resize(sec.nodes-1);
-        sec.EIyy.resize(sec.nodes-1);
-        sec.GJ.resize(sec.nodes-1);
-        sec.rhoA.resize(sec.nodes-1);
-        sec.rhoJ.resize(sec.nodes-1);
+    sec.z = z_np;
+    sec.EA.resize(sec.nodes-1);
+    sec.EIxx.resize(sec.nodes-1);
+    sec.EIyy.resize(sec.nodes-1);
+    sec.GJ.resize(sec.nodes-1);
+    sec.rhoA.resize(sec.nodes-1);
+    sec.rhoJ.resize(sec.nodes-1);
 
+    for (int i = 0; i < sec.nodes-1; i++){
+      int nA = nA_np[i];
+      int nI = nI_np[i];
 
-        for (int i = 0; i < sec.nodes; i++){
-            sec.z(i) = bp::extract<double>(z_np[i]);
-        }
-
-
-        for (int i = 0; i < sec.nodes-1; i++){
-            int nA = bp::extract<double>(nA_np[i]);
-            int nI = bp::extract<double>(nI_np[i]);
-            double EA_poly[nA];
-            double rhoA_poly[nA];
-
-            for (int j = 0; j < nA; j++){
-                EA_poly[j] = bp::extract<double>(EA_list[i][j]);
-                rhoA_poly[j] = bp::extract<double>(rhoA_list[i][j]);
-            }
-            sec.EA[i] = Poly(nA, EA_poly);
-            sec.rhoA[i] = Poly(nA, rhoA_poly);
-
-            double EIxx_poly[nI];
-            double EIyy_poly[nI];
-            double GJ_poly[nI];
-            double rhoJ_poly[nI];
-
-            for (int j = 0; j < nI; j++){
-                EIxx_poly[j] = bp::extract<double>(EIxx_list[i][j]);
-                EIyy_poly[j] = bp::extract<double>(EIyy_list[i][j]);
-                GJ_poly[j] = bp::extract<double>(GJ_list[i][j]);
-                rhoJ_poly[j] = bp::extract<double>(rhoJ_list[i][j]);
-            }
-            sec.EIxx[i] = Poly(nI, EIxx_poly);
-            sec.EIyy[i] = Poly(nI, EIyy_poly);
-            sec.GJ[i] = Poly(nI, GJ_poly);
-            sec.rhoJ[i] = Poly(nI, rhoJ_poly);
-
-        }
-
+      sec.EA[i]   = Poly(nA, EA_np.row(i));
+      sec.rhoA[i] = Poly(nA, rhoA_np.row(i));
+      sec.EIxx[i] = Poly(nI, EIxx_np.row(i));
+      sec.EIyy[i] = Poly(nI, EIyy_np.row(i));
+      sec.GJ[i]   = Poly(nI, GJ_np.row(i));
+      sec.rhoJ[i] = Poly(nI, rhoJ_np.row(i));
     }
+  }
 };
 
 
@@ -183,149 +128,106 @@ struct pyPolynomialSectionData {
 
 struct pyLoads {
 
-    Loads loads;
+  Loads loads;
 
-    pyLoads(int np){
+  pyLoads(int np){
 
-        loads.nodes = np;
+    loads.nodes = np;
 
-        loads.Px.resize(loads.nodes);
-        loads.Py.resize(loads.nodes);
-        loads.Pz.resize(loads.nodes);
-        loads.Fx.resize(loads.nodes);
-        loads.Fy.resize(loads.nodes);
-        loads.Fz.resize(loads.nodes);
-        loads.Mx.resize(loads.nodes);
-        loads.My.resize(loads.nodes);
-        loads.Mz.resize(loads.nodes);
-
-
-        loads.Px.setZero();
-        loads.Py.setZero();
-        loads.Pz.setZero();
-        loads.Fx.setZero();
-        loads.Fy.setZero();
-        loads.Fz.setZero();
-        loads.Mx.setZero();
-        loads.My.setZero();
-        loads.Mz.setZero();
+    loads.Px.resize(loads.nodes);
+    loads.Py.resize(loads.nodes);
+    loads.Pz.resize(loads.nodes);
+    loads.Fx.resize(loads.nodes);
+    loads.Fy.resize(loads.nodes);
+    loads.Fz.resize(loads.nodes);
+    loads.Mx.resize(loads.nodes);
+    loads.My.resize(loads.nodes);
+    loads.Mz.resize(loads.nodes);
 
 
-    }
+    loads.Px.setZero();
+    loads.Py.setZero();
+    loads.Pz.setZero();
+    loads.Fx.setZero();
+    loads.Fy.setZero();
+    loads.Fz.setZero();
+    loads.Mx.setZero();
+    loads.My.setZero();
+    loads.Mz.setZero();
+  }
 
-    pyLoads(int np, const bpn::ndarray &Px_np, const bpn::ndarray &Py_np,
-            const bpn::ndarray &Pz_np){
+  pyLoads(int np, const Vector &Px_np, const Vector &Py_np,
+	  const Vector &Pz_np){
 
-        loads.nodes = np;
+    loads.nodes = np;
 
-        loads.Px.resize(loads.nodes);
-        loads.Py.resize(loads.nodes);
-        loads.Pz.resize(loads.nodes);
-        loads.Fx.resize(loads.nodes);
-        loads.Fy.resize(loads.nodes);
-        loads.Fz.resize(loads.nodes);
-        loads.Mx.resize(loads.nodes);
-        loads.My.resize(loads.nodes);
-        loads.Mz.resize(loads.nodes);
+    loads.Px = Px_np;
+    loads.Py = Py_np;
+    loads.Pz = Pz_np;
+    loads.Fx.resize(loads.nodes);
+    loads.Fy.resize(loads.nodes);
+    loads.Fz.resize(loads.nodes);
+    loads.Mx.resize(loads.nodes);
+    loads.My.resize(loads.nodes);
+    loads.Mz.resize(loads.nodes);
 
+    loads.Fx.setZero();
+    loads.Fy.setZero();
+    loads.Fz.setZero();
+    loads.Mx.setZero();
+    loads.My.setZero();
+    loads.Mz.setZero();
 
-        for (int i = 0 ; i < loads.nodes; i++){
-            loads.Px(i) = bp::extract<double>(Px_np[i]);
-            loads.Py(i) = bp::extract<double>(Py_np[i]);
-            loads.Pz(i) = bp::extract<double>(Pz_np[i]);
-        }
+  }
 
-        loads.Fx.setZero();
-        loads.Fy.setZero();
-        loads.Fz.setZero();
-        loads.Mx.setZero();
-        loads.My.setZero();
-        loads.Mz.setZero();
+  pyLoads(int np, const Vector &Px_np, const Vector &Py_np, const Vector &Pz_np,
+	  const Vector &Fx_np, const Vector &Fy_np, const Vector &Fz_np,
+	  const Vector &Mx_np, const Vector &My_np, const Vector &Mz_np){
 
-    }
+    loads.nodes = np;
 
-    pyLoads(int np, const bpn::ndarray &Px_np, const bpn::ndarray &Py_np, const bpn::ndarray &Pz_np,
-            const bpn::ndarray &Fx_np, const bpn::ndarray &Fy_np, const bpn::ndarray &Fz_np,
-            const bpn::ndarray &Mx_np, const bpn::ndarray &My_np, const bpn::ndarray &Mz_np){
-
-        loads.nodes = np;
-
-        loads.Px.resize(loads.nodes);
-        loads.Py.resize(loads.nodes);
-        loads.Pz.resize(loads.nodes);
-        loads.Fx.resize(loads.nodes);
-        loads.Fy.resize(loads.nodes);
-        loads.Fz.resize(loads.nodes);
-        loads.Mx.resize(loads.nodes);
-        loads.My.resize(loads.nodes);
-        loads.Mz.resize(loads.nodes);
-
-
-        for (int i = 0 ; i < loads.nodes; i++){
-            loads.Px(i) = bp::extract<double>(Px_np[i]);
-            loads.Py(i) = bp::extract<double>(Py_np[i]);
-            loads.Pz(i) = bp::extract<double>(Pz_np[i]);
-            loads.Fx(i) = bp::extract<double>(Fx_np[i]);
-            loads.Fy(i) = bp::extract<double>(Fy_np[i]);
-            loads.Fz(i) = bp::extract<double>(Fz_np[i]);
-            loads.Mx(i) = bp::extract<double>(Mx_np[i]);
-            loads.My(i) = bp::extract<double>(My_np[i]);
-            loads.Mz(i) = bp::extract<double>(Mz_np[i]);
-        }
-
-
-    }
+    loads.Px = Px_np;
+    loads.Py = Py_np;
+    loads.Pz = Pz_np;
+    loads.Fx = Fx_np;
+    loads.Fy = Fy_np;
+    loads.Fz = Fz_np;
+    loads.Mx = Mx_np;
+    loads.My = My_np;
+    loads.Mz = Mz_np;
+  }
 };
 
 
 struct pyPolynomialLoads {
 
-    PolynomialLoads loads;
+  PolynomialLoads loads;
 
-    pyPolynomialLoads(int nodes, const bpn::ndarray &nP_np, const bp::list &Px_list, const bp::list &Py_list, const bp::list &Pz_list,
-            const bpn::ndarray &Fx_np, const bpn::ndarray &Fy_np, const bpn::ndarray &Fz_np,
-            const bpn::ndarray &Mx_np, const bpn::ndarray &My_np, const bpn::ndarray &Mz_np){
+  pyPolynomialLoads(int nodes, const Vector &nP_np, const Matrix &Px_np, const Matrix &Py_np, const Matrix &Pz_np,
+		    const Vector &Fx_np, const Vector &Fy_np, const Vector &Fz_np,
+		    const Vector &Mx_np, const Vector &My_np, const Vector &Mz_np){
 
-        loads.nodes = nodes;
+    loads.nodes = nodes;
 
-        loads.Px.resize(loads.nodes-1);
-        loads.Py.resize(loads.nodes-1);
-        loads.Pz.resize(loads.nodes-1);
-        loads.Fx.resize(loads.nodes);
-        loads.Fy.resize(loads.nodes);
-        loads.Fz.resize(loads.nodes);
-        loads.Mx.resize(loads.nodes);
-        loads.My.resize(loads.nodes);
-        loads.Mz.resize(loads.nodes);
+    loads.Px.resize(loads.nodes-1);
+    loads.Py.resize(loads.nodes-1);
+    loads.Pz.resize(loads.nodes-1);
+    loads.Fx = Fx_np;
+    loads.Fy = Fy_np;
+    loads.Fz = Fz_np;
+    loads.Mx = Mx_np;
+    loads.My = My_np;
+    loads.Mz = Mz_np;
 
+    for (int i = 0; i < loads.nodes-1; i++){
+      int nP = nP_np[i];
 
-        for (int i = 0; i < loads.nodes; i++){
-            loads.Fx(i) = bp::extract<double>(Fx_np[i]);
-            loads.Fy(i) = bp::extract<double>(Fy_np[i]);
-            loads.Fz(i) = bp::extract<double>(Fz_np[i]);
-            loads.Mx(i) = bp::extract<double>(Mx_np[i]);
-            loads.My(i) = bp::extract<double>(My_np[i]);
-            loads.Mz(i) = bp::extract<double>(Mz_np[i]);
-        }
-
-        for (int i = 0; i < loads.nodes-1; i++){
-            int nP = bp::extract<double>(nP_np[i]);
-            double Px_poly[nP];
-            double Py_poly[nP];
-            double Pz_poly[nP];
-
-            for (int j = 0; j < nP; j++){
-                Px_poly[j] = bp::extract<double>(Px_list[i][j]);
-                Py_poly[j] = bp::extract<double>(Py_list[i][j]);
-                Pz_poly[j] = bp::extract<double>(Pz_list[i][j]);
-            }
-            loads.Px[i] = Poly(nP, Px_poly);
-            loads.Py[i] = Poly(nP, Py_poly);
-            loads.Pz[i] = Poly(nP, Pz_poly);
-
-        }
-
+      loads.Px[i] = Poly(nP, Px_np.row(i));
+      loads.Py[i] = Poly(nP, Py_np.row(i));
+      loads.Pz[i] = Poly(nP, Pz_np.row(i));
     }
+
+  }
 };
 
 
@@ -336,106 +238,82 @@ struct pyPolynomialLoads {
 class pyBEAM {
 
 
-    Beam *beam;
+  Beam *beam;
 
 public:
 
 
 
-// MARK: ---------------- CONSTRUCTORS --------------------------
+  // MARK: ---------------- CONSTRUCTORS --------------------------
 
-    // cylindrical shell sections
-    pyBEAM(int nodes, const bpn::ndarray &z_np, const bpn::ndarray &d_np, const bpn::ndarray &t_np,
-           const bp::object &loads_o, const bp::object &mat_o,
-           const bp::object &tip_o, const bp::object &base_o){
+  // cylindrical shell sections
+  pyBEAM(int nodes, const Vector &z_np, const Vector &d_np, const Vector &t_np,
+	 const py::object &loads_o, const py::object &mat_o,
+	 const py::object &tip_o, const py::object &base_o){
 
-        Vector z(nodes);
-        Vector d(nodes);
-        Vector t(nodes);
+    pyLoads &loads = loads_o.cast<pyLoads&>();
+    pyTipData& tip = tip_o.cast<pyTipData&>();
+    pyBaseData& base = base_o.cast<pyBaseData&>();
+    IsotropicMaterial& mat = mat_o.cast<IsotropicMaterial&>();
 
-        for (int i = 0 ; i < nodes; i++){
-            z(i) = bp::extract<double>(z_np[i]);
-            d(i) = bp::extract<double>(d_np[i]);
-            t(i) = bp::extract<double>(t_np[i]);
-        }
+    beam = new Beam(z_np, d_np, t_np, loads.loads, mat, tip.tip, base.base);
+  }
 
-        pyLoads &loads = bp::extract<pyLoads&>(loads_o);
-        IsotropicMaterial& mat = bp::extract<IsotropicMaterial&>(mat_o);
-        pyTipData& tip = bp::extract<pyTipData&>(tip_o);
-        pyBaseData& base = bp::extract<pyBaseData&>(base_o);
+  //general sections
+  pyBEAM(const py::object &section_o, const py::object &loads_o,
+	 const py::object &tip_o, const py::object &base_o){
+    
+    pySectionData& sec = section_o.cast<pySectionData&>();
+    pyLoads &loads = loads_o.cast<pyLoads&>();
+    pyTipData& tip = tip_o.cast<pyTipData&>();
+    pyBaseData& base = base_o.cast<pyBaseData&>();
 
-        beam = new Beam(z, d, t, loads.loads, mat, tip.tip, base.base);
-    }
+    beam = new Beam(sec.sec, loads.loads, tip.tip, base.base);
+  }
 
-    //general sections
-    pyBEAM(const bp::object &section_o, const bp::object &loads_o,
-           const bp::object &tip_o, const bp::object &base_o){
+  //general sections as polynomials
+  pyBEAM(const py::object &section_o, const py::object &loads_o,
+	 const py::object &tip_o, const py::object &base_o, int dummy){
 
-        pySectionData& sec = bp::extract<pySectionData&>(section_o);
-        pyLoads &loads = bp::extract<pyLoads&>(loads_o);
-        pyTipData& tip = bp::extract<pyTipData&>(tip_o);
-        pyBaseData& base = bp::extract<pyBaseData&>(base_o);
+    pyPolynomialSectionData& sec = section_o.cast<pyPolynomialSectionData&>();
+    pyPolynomialLoads &loads = loads_o.cast<pyPolynomialLoads&>();
+    pyTipData& tip = tip_o.cast<pyTipData&>();
+    pyBaseData& base = base_o.cast<pyBaseData&>();
 
-        beam = new Beam(sec.sec, loads.loads, tip.tip, base.base);
-    }
+    beam = new Beam(sec.sec, loads.loads, tip.tip, base.base);
+  }
 
-    //general sections as polynomials
-    pyBEAM(const bp::object &section_o, const bp::object &loads_o,
-           const bp::object &tip_o, const bp::object &base_o, int dummy){
-
-        pyPolynomialSectionData& sec = bp::extract<pyPolynomialSectionData&>(section_o);
-        pyPolynomialLoads &loads = bp::extract<pyPolynomialLoads&>(loads_o);
-        pyTipData& tip = bp::extract<pyTipData&>(tip_o);
-        pyBaseData& base = bp::extract<pyBaseData&>(base_o);
-
-        beam = new Beam(sec.sec, loads.loads, tip.tip, base.base);
-    }
-
-//    pyBEAM(const pyBEAM &b, int nothing){
-//        std::cout << "yo" << std::endl;
-//        beam = new Beam(*(b.beam), 1);
-//
-//    }
-
-    ~pyBEAM(){
-
-        delete beam;
-    }
+  ~pyBEAM(){delete beam;}
 
 
+  // MARK: ---------------- COMPUTATIONS --------------------------
 
-
-// MARK: ---------------- COMPUTATIONS --------------------------
-
-
-    /**
+  /**
      Compute the mass of the structure
 
      Returns:
      mass
 
-     **/
-    double computeMass(){
+  **/
+  double computeMass(){
+    return beam->computeMass();
+  }
 
-        return beam->computeMass();
-    }
 
-
-    /**
+  /**
      Compute the out-of-plane mass moment of inertia of the structure
      int(rho z^2, dV)
 
      Returns:
      mass moment of inertia
 
-     **/
-    double computeOutOfPlaneMomentOfInertia(){
+  **/
+  double computeOutOfPlaneMomentOfInertia(){
+    return beam->computeOutOfPlaneMomentOfInertia();
+  }
 
-        return beam->computeOutOfPlaneMomentOfInertia();
-    }
 
-
-    /**
+  /**
      Compute the natural frequencies of the structure
 
      Arguments:
@@ -445,24 +323,17 @@ public:
      Return:
      freq - a numpy array of frequencies (not necessarily of length n as described above).
 
-     **/
-    bpn::ndarray computeNaturalFrequencies(int n){
+  **/
+  Vector computeNaturalFrequencies(int n){
 
-        Vector vec(n);
-        beam->computeNaturalFrequencies(n, vec);
+    Vector vec(n);
+    beam->computeNaturalFrequencies(n, vec);
 
-        bp::list list;
-        for(int i = 0; i < vec.size(); i++)
-        {
-            list.append(vec(i));
-        }
-
-        return bpn::array(list);
-
-    }
+    return vec;
+  }
 
 
-    /**
+  /**
      Compute the natural frequencies of the structure
 
      Arguments:
@@ -472,33 +343,18 @@ public:
      Return:
      freq - a numpy array of frequencies (not necessarily of length n as described above).
 
-     **/
-    bp::tuple computeNaturalFrequenciesAndEigenvectors(int n){
+  **/
+  py::tuple computeNaturalFrequenciesAndEigenvectors(int n){
 
-        Vector vec(n);
-        Matrix mat(0, 0);
-        beam->computeNaturalFrequencies(n, vec, mat);
+    Vector freqs(n);
+    Matrix eigenvectors(0, 0);
+    beam->computeNaturalFrequencies(n, freqs, eigenvectors);
 
-        bp::list freq_list;
-        for(int i = 0; i < vec.size(); i++) {
-            freq_list.append(vec(i));
-        }
-
-        bp::list vec_list;
-        for (int j = 0; j < mat.cols(); j++) {
-
-            bp::list inner_list;
-            for (int i = 0; i < mat.rows(); i++) {
-                inner_list.append(mat(i, j));
-            }
-            vec_list.append(bpn::array(inner_list));
-        }
-
-        return bp::make_tuple(bpn::array(freq_list), bpn::array(vec_list));
-    }
+    return py::make_tuple(freqs, eigenvectors);
+  }
 
 
-    /**
+  /**
      Compute the displacements of the structure (in global coordinate system)
 
      Return:
@@ -506,39 +362,27 @@ public:
      each entry of the tuple is a numpy array describing the deflections for the given
      degree of freedom at each node.
 
-     **/
-    bp::tuple computeDisplacement(){
+  **/
+  py::tuple computeDisplacement(){
 
-        int nodes = beam->getNumNodes();
+    int nodes = beam->getNumNodes();
 
-        Vector dx_v(nodes);
-        Vector dy_v(nodes);
-        Vector dz_v(nodes);
-        Vector dtheta_x_v(nodes);
-        Vector dtheta_y_v(nodes);
-        Vector dtheta_z_v(nodes);
+    Vector dx(nodes);
+    Vector dy(nodes);
+    Vector dz(nodes);
+    Vector dtx(nodes);
+    Vector dty(nodes);
+    Vector dtz(nodes);
 
-        beam->computeDisplacement(dx_v, dy_v, dz_v, dtheta_x_v, dtheta_y_v, dtheta_z_v);
+    beam->computeDisplacement(dx, dy, dz, dtx, dty, dtz);
 
-        bp::list dx, dy, dz, dtx, dty, dtz;
+    return py::make_tuple(dx, dy, dz, dtx, dty, dtz);
 
-        for(int i = 0; i < nodes; i++)
-        {
-            dx.append(dx_v(i));
-            dy.append(dy_v(i));
-            dz.append(dz_v(i));
-            dtx.append(dtheta_x_v(i));
-            dty.append(dtheta_y_v(i));
-            dtz.append(dtheta_z_v(i));
-        }
-
-        return bp::make_tuple(bpn::array(dx), bpn::array(dy), bpn::array(dz), bpn::array(dtx), bpn::array(dty), bpn::array(dtz));
-
-    }
+  }
 
 
 
-    /**
+  /**
      Estimates the minimum critical buckling loads due to axial loading in addition to any existing input loads.
 
      Return:
@@ -546,20 +390,20 @@ public:
      Pcr_x - critical buckling load in the x-direction
      Pcr_y - critical buckling load in the y-direction
 
-     **/
-    bp::tuple computeCriticalBucklingLoads(){
+  **/
+  py::tuple computeCriticalBucklingLoads(){
 
-        double Pcr_x, Pcr_y;
+    double Pcr_x, Pcr_y;
 
-        beam->computeMinBucklingLoads(Pcr_x, Pcr_y);
+    beam->computeMinBucklingLoads(Pcr_x, Pcr_y);
 
-        return bp::make_tuple(Pcr_x, Pcr_y);
-    }
-
-
+    return py::make_tuple(Pcr_x, Pcr_y);
+  }
 
 
-    /**
+
+
+  /**
      Computes the axial strain along the structure at given locations.
 
      Arguments:
@@ -571,71 +415,42 @@ public:
      Return:
      epsilon_axial - a numpy array containing axial strain at point (x(i), y(i), z(i)) due to axial loads and bi-directional bending
 
-     **/
-    bpn::ndarray computeAxialStrain(int length, const bpn::ndarray &x_np, const bpn::ndarray &y_np,
-                                  const bpn::ndarray &z_np){
+  **/
+  Vector computeAxialStrain(int length, Vector &x_np, Vector &y_np, Vector &z_np){
+    
+    Vector epsilon_axial(length);
+    
+    beam->computeAxialStrain(x_np, y_np, z_np, epsilon_axial);
+
+    return epsilon_axial;
+  }
 
 
-        Vector x(length);
-        Vector y(length);
-        Vector z(length);
-        // Vector E(length);
-        Vector epsilon_axial(length);
+  // in global 3D coordinate system
+  py::tuple computeShearAndBending(){
 
-        for (int i = 0 ; i < length; i++){
-            x(i) = bp::extract<double>(x_np[i]);
-            y(i) = bp::extract<double>(y_np[i]);
-            z(i) = bp::extract<double>(z_np[i]);
-            // E(i) = bp::extract<double>(E_np[i]);
-        }
+    PolyVec Vx, Vy, Fz, Mx, My, Tz;
+    beam->shearAndBending(Vx, Vy, Fz, Mx, My, Tz);
 
-        beam->computeAxialStrain(x, y, z, epsilon_axial);
+    int n = beam->getNumNodes();
 
-        bp::list list;
-        for(int i = 0; i < epsilon_axial.size(); i++)
-        {
-            list.append(epsilon_axial(i));
-        }
+    Vector Vx0(n), Vy0(n), Fz0(n), Mx0(n), My0(n), Tz0(n);
 
-        return bpn::array(list);
 
+    for(int i = 0; i < n; i++) {
+
+      double eval = (i < n-1) ? 0.0 : 1.0;
+      
+      Vx0[i] = Vx[i].eval(1.0);
+      Vy0[i] = Vy[i].eval(1.0);
+      Fz0[i] = Fz[i].eval(1.0);
+      Mx0[i] = -My[i].eval(1.0);  // translate back to global coordinates
+      My0[i] = Mx[i].eval(1.0);  // translate back to global coordinates
+      Tz0[i] = Tz[i].eval(1.0);
     }
 
-
-    // in global 3D coordinate system
-    bp::tuple computeShearAndBending(){
-
-        PolyVec Vx, Vy, Fz, Mx, My, Tz;
-        beam->shearAndBending(Vx, Vy, Fz, Mx, My, Tz);
-
-
-        bp::list Vx0, Vy0, Fz0, Mx0, My0, Tz0;
-
-        int n = beam->getNumNodes() - 1;
-
-        for(int i = 0; i < n; i++)
-        {
-            Vx0.append(Vx[i].eval(0.0));
-            Vy0.append(Vy[i].eval(0.0));
-            Fz0.append(Fz[i].eval(0.0));
-            Mx0.append(-My[i].eval(0.0));  // translate back to global coordinates
-            My0.append(Mx[i].eval(0.0));  // translate back to global coordinates
-            Tz0.append(Tz[i].eval(0.0));
-        }
-
-        Vx0.append(Vx[n-1].eval(1.0));
-        Vy0.append(Vy[n-1].eval(1.0));
-        Fz0.append(Fz[n-1].eval(1.0));
-        Mx0.append(-My[n-1].eval(1.0));  // translate back to global coordinates
-        My0.append(Mx[n-1].eval(1.0));  // translate back to global coordinates
-        Tz0.append(Tz[n-1].eval(1.0));
-
-
-        return bp::make_tuple(bpn::array(Vx0), bpn::array(Vy0), bpn::array(Fz0), bpn::array(Mx0), bpn::array(My0), bpn::array(Tz0));
-
-    }
-
-
+    return py::make_tuple(Vx0, Vy0, Fz0, Mx0, My0, Tz0);
+  }
 };
 
 
@@ -643,27 +458,14 @@ public:
 
 // MARK: --------- BOOST MODULE ---------------
 
-
-BOOST_PYTHON_MODULE(_pBEAM)
+PYBIND11_MODULE(_pBEAM, m)
 {
+  m.doc() = "pBeam python plugin module";
 
-    Py_Initialize();
-    bpn::initialize();
-    //bpn::ndarray::set_module_and_type("numpy", "ndarray");
-
-    struct beam_pickle : bp::pickle_suite{
-        static bp::tuple getinitargs(const pyBEAM& b){
-
-            return bp::make_tuple(b, 1);
-        }
-    };
-
-
-    bp::class_<pyBEAM>("Beam", bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray,
-                       bp::object, bp::object, bp::object, bp::object>())
-    .def(bp::init<bp::object, bp::object, bp::object, bp::object>())
-    .def(bp::init<bp::object, bp::object, bp::object, bp::object, int>())
-//    .def(bp::init<const pyBEAM&, int>())
+  py::class_<pyBEAM>(m, "Beam")
+    .def(py::init<int, Vector, Vector, Vector, py::object, py::object, py::object, py::object>())
+    .def(py::init<py::object, py::object, py::object, py::object>())
+    .def(py::init<py::object, py::object, py::object, py::object, int>())
     .def("mass", &pyBEAM::computeMass)
     .def("naturalFrequencies", &pyBEAM::computeNaturalFrequencies)
     .def("naturalFrequenciesAndEigenvectors", &pyBEAM::computeNaturalFrequenciesAndEigenvectors)
@@ -672,35 +474,100 @@ BOOST_PYTHON_MODULE(_pBEAM)
     .def("axialStrain", &pyBEAM::computeAxialStrain)
     .def("outOfPlaneMomentOfInertia", &pyBEAM::computeOutOfPlaneMomentOfInertia)
     .def("shearAndBending", &pyBEAM::computeShearAndBending)
-//    .def_pickle(beam_pickle())
     ;
 
-    bp::class_<pyTipData>("TipData", bp::init<double, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>())
-    .def(bp::init<>())
+  py::class_<pyTipData>(m, "TipData")
+    .def(py::init<double, Vector, Vector, Vector, Vector>())
+    .def(py::init<>())
     ;
 
-    bp::class_<pyBaseData>("BaseData", bp::init<bpn::ndarray, double>())
-    .def(bp::init<>())
+  py::class_<pyBaseData>(m, "BaseData")
+    .def(py::init<Vector, double>())
+    .def(py::init<>())
     ;
 
-    bp::class_<IsotropicMaterial>("Material", bp::init<double, double, double>())
+  py::class_<IsotropicMaterial>(m, "Material")
+    .def(py::init<double, double, double>())
     .def_readwrite("E", &IsotropicMaterial::E)
     .def_readwrite("G", &IsotropicMaterial::G)
     .def_readwrite("rho", &IsotropicMaterial::rho)
     ;
 
-    bp::class_<pySectionData>("SectionData", bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray,
-        bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>());
+  py::class_<pySectionData>(m, "SectionData")
+    .def(py::init<int, Vector, Vector, Vector, Vector, Vector, Vector, Vector>());
 
-    bp::class_<pyPolynomialSectionData>("PolySectionData", bp::init<int, bpn::ndarray, bpn::ndarray,
-        bpn::ndarray, bp::list, bp::list, bp::list, bp::list, bp::list, bp::list>());
+  py::class_<pyPolynomialSectionData>(m, "PolySectionData")
+    .def(py::init<int, Vector, Vector, Vector, Matrix, Matrix, Matrix, Matrix, Matrix, Matrix>());
 
-    bp::class_<pyLoads>("Loads", bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray,
-        bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>())
-    .def(bp::init<int, bpn::ndarray, bpn::ndarray, bpn::ndarray>())
+  py::class_<pyLoads>(m, "Loads")
+    .def(py::init<int, Vector, Vector, Vector, Vector, Vector, Vector, Vector, Vector, Vector>())
+    .def(py::init<int, Vector, Vector, Vector>())
+    .def(py::init<int>())
+    ;
+
+  py::class_<pyPolynomialLoads>(m, "PolyLoads")
+    .def(py::init<int, Vector, Matrix, Matrix, Matrix, Vector, Vector, Vector, Vector, Vector, Vector>());
+}
+
+/*
+BOOST_PYTHON_MODULE(_pBEAM)
+{
+
+  Py_Initialize();
+  bpn::initialize();
+  //bpn::ndarray::set_module_and_type("numpy", "ndarray");
+
+  struct beam_pickle : bp::pickle_suite{
+    static py::tuple getinitargs(const pyBEAM& b){
+
+      return py::make_tuple(b, 1);
+    }
+  };
+
+
+  bp::class_<pyBEAM>("Beam", bp::init<int, Vector, Vector, Vector,
+		     py::object, py::object, py::object, py::object>())
+    .def(bp::init<py::object, py::object, py::object, py::object>())
+    .def(bp::init<py::object, py::object, py::object, py::object, int>())
+    //    .def(bp::init<const pyBEAM&, int>())
+    .def("mass", &pyBEAM::computeMass)
+    .def("naturalFrequencies", &pyBEAM::computeNaturalFrequencies)
+    .def("naturalFrequenciesAndEigenvectors", &pyBEAM::computeNaturalFrequenciesAndEigenvectors)
+    .def("displacement", &pyBEAM::computeDisplacement)
+    .def("criticalBucklingLoads", &pyBEAM::computeCriticalBucklingLoads)
+    .def("axialStrain", &pyBEAM::computeAxialStrain)
+    .def("outOfPlaneMomentOfInertia", &pyBEAM::computeOutOfPlaneMomentOfInertia)
+    .def("shearAndBending", &pyBEAM::computeShearAndBending)
+    //    .def_pickle(beam_pickle())
+    ;
+
+  bp::class_<pyTipData>("TipData", bp::init<double, Vector, Vector, Vector, Vector>())
+    .def(bp::init<>())
+    ;
+
+  bp::class_<pyBaseData>("BaseData", bp::init<Vector, double>())
+    .def(bp::init<>())
+    ;
+
+  bp::class_<IsotropicMaterial>("Material", bp::init<double, double, double>())
+    .def_readwrite("E", &IsotropicMaterial::E)
+    .def_readwrite("G", &IsotropicMaterial::G)
+    .def_readwrite("rho", &IsotropicMaterial::rho)
+    ;
+
+  bp::class_<pySectionData>("SectionData", bp::init<int, Vector, Vector, Vector,
+			    Vector, Vector, Vector, Vector>());
+
+  bp::class_<pyPolynomialSectionData>("PolySectionData", bp::init<int, Vector, Vector,
+				      Vector, Matrix, Matrix, Matrix, Matrix, Matrix, Matrix>());
+
+  bp::class_<pyLoads>("Loads", bp::init<int, Vector, Vector, Vector,
+		      Vector, Vector, Vector, Vector, Vector, Vector>())
+    .def(bp::init<int, Vector, Vector, Vector>())
     .def(bp::init<int>())
     ;
 
-    bp::class_<pyPolynomialLoads>("PolyLoads", bp::init<int, bpn::ndarray, bp::list, bp::list, bp::list,
-                        bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray, bpn::ndarray>());
+  bp::class_<pyPolynomialLoads>("PolyLoads", bp::init<int, Vector, Matrix, Matrix, Matrix,
+				Vector, Vector, Vector, Vector, Vector, Vector>());
 }
+*/
