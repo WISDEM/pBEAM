@@ -282,318 +282,88 @@ class TestPyBeam(unittest.TestCase):
         npt.assert_almost_equal(Vx, Vx_expect)
         npt.assert_almost_equal(My, My_expect)
 
+    def testShearBendingSimplePt(self):
+        # Test data from "Mechanical of Materials", Gere, 6th ed., pg. 288
+        # cantilevered beam with two point loads
+
+        L = 10.0
+        P1 = 2.0
+        P2 = 3.0
+
+        n = 3
+        nodes = n+1
+
+        tip = pb.TipData()
+
+        base = pb.BaseData(np.ones(6), 1.0)
         
+        z = np.arange(nodes, dtype=np.float64) * (L / n)
+        EIx = EIy = EA = GJ = rhoJ = rhoA = np.ones(nodes)
+        sec = pb.SectionData(nodes, z, EA, EIx, EIy, GJ, rhoA, rhoJ)
+
+        Px = Py = Pz = Fy_pt = Fz_pt = Mx_pt = My_pt = Mz_pt = np.zeros(nodes)
+        Fx_pt = np.zeros(nodes)
+        Fx_pt[1] = -P2
+        Fx_pt[3] = -P1
+        loads = pb.Loads(nodes, Px, Py, Pz, Fx_pt, Fy_pt, Fz_pt, Mx_pt, My_pt, Mz_pt)
+
+        beam = pb.Beam(sec, loads, tip, base)
+
+        (Vx, Vy, Fz, Mx, My, Tz) = beam.shearAndBending()
+
+        tol_pct = 1e-8;
+        Vx_expect = np.polyval([0.0, 0.0, -P1-P2], [0.0])
+        self.assertAlmostEqual(Vx[0], Vx_expect, 8)
+
+        Vx_expect = np.polyval([0.0, 0.0, -P1], [0.0])
+        self.assertAlmostEqual(Vx[1], Vx_expect, 8)
+        self.assertAlmostEqual(Vx[2], Vx_expect, 8)
+
+        b = L/3.0
+        a = 2.0/3.0*L
+        My_expect = np.polyval([0.0, 0.0, -P1*a + P1*L + P2*b, -P1*L - P2*b], [0.0])
+        self.assertAlmostEqual(My[0], My_expect, 8)
+
+        My_expect = np.polyval([0.0, 0.0, -0.5*P1*a + P1*a, -P1*a], [0.0])
+        self.assertAlmostEqual(My[1], My_expect, 8)
+
+        My_expect = np.polyval([0.0, 0.0, 0.5*P1*a, -0.5*P1*a], [0.0])
+        self.assertAlmostEqual(My[2], My_expect, 8)
+
+    def testOtherCalls(self):
+
+        E = 2.0
+        I = 3.0
+        L = 4.0
+        q0 = 5.0
         
-'''    
+        n = 3
+        nodes = n+1
+        
+        tip = pb.TipData()
 
-// Test data from "Mechanical of Materials", Gere, 6th ed., pg. 288
-// cantilevered beam with two point loads
-TEST_CASE( "shear_bending_simple_pt" ){
+        base = pb.BaseData(np.ones(6), 1.0)
+        
+        z = L * np.arange(nodes)
+        EIx = EIy = E*I*np.ones(nodes)
+        EA = GJ = rhoJ = rhoA = np.ones(nodes)
+        sec = pb.SectionData(nodes, z, EA, EIx, EIy, GJ, rhoA, rhoJ)
 
-    double L = 10.0;
-    double P1 = 2.0;
-    double P2 = 3.0;
+        Pz = q0*(1 - z/L)
+        Py = Px = np.zeros(nodes)
+        loads = pb.Loads(nodes, Px, Py, Pz)
 
-    int n = 3;
+        beam = pb.Beam(sec, loads, tip, base)
 
-    int nodes = n+1;
+        badlist = [float('inf'), -float('inf'), float('nan'), 0.0, np.inf, -np.inf, np.nan]
+        self.assertNotIn(beam.mass(), badlist)
+        self.assertNotIn(beam.outOfPlaneMomentOfInertia(), badlist)
 
-    Vector z(nodes);
-    for (int i = 0; i < nodes; i++) {
-        z(i) = (double)i/(nodes-1) * L;
-    }
-
-    Vector EIx(nodes);
-    for (int i = 0; i < nodes; i++) {
-        EIx(i) = 1.0;
-    }
-
-    Vector EIy(nodes);
-    for (int i = 0; i < nodes; i++) {
-        EIy(i) = 1.0;
-    }
-
-    Vector EA(nodes);
-    for (int i = 0; i < nodes; i++) {
-        EA(i) = 1.0;
-    }
-
-    Vector GJ(nodes);
-    for (int i = 0; i < nodes; i++) {
-        GJ(i) = 1.0;
-    }
-
-    Vector rhoA(nodes);
-    for (int i = 0; i < nodes; i++) {
-        rhoA(i) = 1.0;
-    }
-
-    Vector rhoJ(nodes);
-    for (int i = 0; i < nodes; i++) {
-        rhoJ(i) = 1.0;
-    }
-
-    Vector ESx(nodes), ESy(nodes), EIxy(nodes);
-    ESx.setZero();
-    ESy.setZero();
-    EIxy.setZero();
-
-    Vector Px(nodes);
-    Vector Py(nodes);
-    Vector Pz(nodes);
-    Px.setZero();
-    Py.setZero();
-    Pz.setZero();
-
-    Vector Fx_pt(nodes), Fy_pt(nodes), Fz_pt(nodes), Mx_pt(nodes), My_pt(nodes), Mz_pt(nodes);
-    Fx_pt.setZero();
-    Fy_pt.setZero();
-    Fz_pt.setZero();
-    Mx_pt.setZero();
-    My_pt.setZero();
-    Mz_pt.setZero();
-
-    Fx_pt(1) = -P2;
-    Fx_pt(3) = -P1;
-
-    Loads loads = Loads(Px, Py, Pz, Fx_pt, Fy_pt, Fz_pt, Mx_pt, My_pt, Mz_pt);
-
-    TipData tip;
-
-    BaseData base;
-    for (int i = 0; i < 6; i++) {
-        base.rigid[i] = true;
-    }
-
-    SectionData sec = SectionData(z, EA, EIx, EIy, GJ, rhoA, rhoJ);
-
-    Beam beam = Beam(sec, loads, tip, base);
-
-    PolyVec Vx, Vy, Fz, Mx, My, Tz;
-
-    beam.shearAndBending(Vx, Vy, Fz, Mx, My, Tz);
-
-
-    double tol_pct = 1e-8;
-    self.assertAlmostEqual(Vx[0].length()== 3);
-    self.assertAlmostEqual(Vx[0](0) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Vx[0](1) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Vx[0](2) == Approx(-P1-P2).epsilon(tol_pct));
-
-    self.assertAlmostEqual(Vx[1](0) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Vx[1](1) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Vx[1](2) == Approx(-P1).epsilon(tol_pct));
-
-    self.assertAlmostEqual(Vx[2](0) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Vx[2](1) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Vx[2](2) == Approx(-P1).epsilon(tol_pct));
-
-    double b = L/3.0;
-    double a = 2.0/3.0*L;
-
-    self.assertAlmostEqual(Mx[0](0) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[0](1) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[0](2) == Approx(-P1*a + P1*L + P2*b).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[0](3) == Approx(-P1*L - P2*b).epsilon(tol_pct));
-
-    self.assertAlmostEqual(Mx[1](0) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[1](1) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[1](2) == Approx(-0.5*P1*a + P1*a).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[1](3) == Approx(-P1*a).epsilon(tol_pct));
-
-    self.assertAlmostEqual(Mx[2](0) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[2](1) == Approx(0.0).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[2](2) == Approx(0.5*P1*a).epsilon(tol_pct));
-    self.assertAlmostEqual(Mx[2](3) == Approx(-0.5*P1*a).epsilon(tol_pct));
-
-
-}
-
-
-// Test data from Rick Damiani's ANSYS model
-// tower with springs at base, and offset mass
-TEST_CASE( "ricks_tower" ){
-
-    double dmp = 6.2;
-    double dtw_base = 6.424;
-    double dtw_top = dtw_base * 0.55;
-
-    double E = 210.0e9;
-    double G = 80.769e9;
-    double rho = 8502.0;
-
-    double E_grout = 3.9e10;
-    double rho_grout = 2500.0;
-    double G_grout = 1.5e10;
-
-    Vector z(100);
-    z(0) = 0.0;
-    PolyVec EIx(100);
-    PolyVec EIy(100);
-    PolyVec EA(100);
-    PolyVec GJ(100);
-    PolyVec rhoA(100);
-    PolyVec rhoJ(100);
-
-
-
-    int idx = 0;
-
-    // monopile bottom
-    int n_mp_bot = 2;
-    double I = np.pi / 8.0 * pow(dmp, 3) * dmp/76.938;
-    double A = np.pi * dmp * dmp/76.938;
-    for (int i = 1; i <= n_mp_bot; i++){
-        z(idx+i) = z(idx) + (double)i/n_mp_bot*(2.0*dmp);
-        EIx[idx+i-1] = Poly(1, E*I);
-        EIy[idx+i-1] = Poly(1, E*I);
-        EA[idx+i-1] = Poly(1, E*A);
-        GJ[idx+i-1] = Poly(1, G*(I+I));
-        rhoA[idx+i-1] = Poly(1, rho*A);
-        rhoJ[idx+i-1] = Poly(1, rho*(I+I));
-    }
-    idx += n_mp_bot;
-
-    // monopile bottom
-    int n_mp_top = 2;
-    I = np.pi / 8.0 * pow(dmp, 3) * dmp/100.0;
-    A = np.pi * dmp * dmp/100.0;
-    for (int i = 1; i <= n_mp_top; i++){
-        z(idx+i) = z(idx) + (double)i/n_mp_top*(25.0 + 5.0 - 0.5*dmp - 2.0*dmp);
-        EIx[idx+i-1] = Poly(1, E*I);
-        EIy[idx+i-1] = Poly(1, E*I);
-        EA[idx+i-1] = Poly(1, E*A);
-        GJ[idx+i-1] = Poly(1, G*(I+I));
-        rhoA[idx+i-1] = Poly(1, rho*A);
-        rhoJ[idx+i-1] = Poly(1, rho*(I+I));
-    }
-    idx += n_mp_top;
-
-    // overlap
-    int n_ov = 1;
-    double I1 = np.pi / 8.0 * pow(dtw_base, 3) * 0.062;
-    double I2 = np.pi / 8.0 * pow(dmp, 3) * dmp/100.0;
-    double I3 = np.pi / 64.0 * (pow(dtw_base-0.062, 4) - pow(dmp+dmp/100.0, 4));
-    double A1 = np.pi * dtw_base * 0.062;
-    double A2 = np.pi * dmp * dmp/100.0;
-    double A3 = np.pi / 4.0 * (pow(dtw_base-0.062, 2) - pow(dmp+dmp/100.0, 2));
-    for (int i = 1; i <= n_ov; i++){
-        z(idx+i) = z(idx) + (double)i/n_ov*(0.5*dmp);
-        EIx[idx+i-1] = Poly(1, E*I1 + E*I2 + E_grout*I3);
-        EIy[idx+i-1] = Poly(1, E*I1 + E*I2 + E_grout*I3);
-        EA[idx+i-1] = Poly(1, E*A1 + E*A2 + E_grout*A3);
-        GJ[idx+i-1] = Poly(1, G*2*I1 + G*2*I2 + G_grout*2*I3);
-        rhoA[idx+i-1] = Poly(1, rho*A1 + rho*A2 + rho_grout*A3);
-        rhoJ[idx+i-1] = Poly(1, rho*2*I1 + rho*2*I2 + rho_grout*2*I3);
-    }
-    idx += n_ov;
-
-    // transition
-    int n_ts = 4;
-    I = np.pi / 8.0 * pow(dtw_base, 3) * 0.062;
-    A = np.pi * dtw_base * 0.062;
-    for (int i = 1; i <= n_ts; i++){
-        z(idx+i) = z(idx) + (double)i/n_ts*(18.05 - 0.5*dmp);
-        EIx[idx+i-1] = Poly(1, E*I);
-        EIy[idx+i-1] = Poly(1, E*I);
-        EA[idx+i-1] = Poly(1, E*A);
-        GJ[idx+i-1] = Poly(1, G*(I+I));
-        rhoA[idx+i-1] = Poly(1, rho*A);
-        rhoJ[idx+i-1] = Poly(1, rho*(I+I));
-    }
-    idx += n_ts;
-
-    // tower
-    int n_tw = 16;
-    for (int i = 1; i <= n_tw; i++){
-        z(idx+i) = z(idx) + (double)i/n_tw*(88.37);
-        double d_bot = dtw_base + (double)(i-1)/n_tw*(dtw_top-dtw_base);
-        double d_top = dtw_base + (double)(i)/n_tw*(dtw_top-dtw_base);
-        Poly d = Poly(2, d_top-d_bot, d_bot);
-        Poly t = d / 120.0;
-        Poly Itw = np.pi / 8.0 * d * d * d* t;
-        Poly Atw = np.pi * d * t;
-        EIx[idx+i-1] = E * Itw;
-        EIy[idx+i-1] = E * Itw;
-        EA[idx+i-1] = E * Atw;
-        GJ[idx+i-1] = G * 2*Itw;
-        rhoA[idx+i-1] = rho * Atw;
-        rhoJ[idx+i-1] = rho * 2*Itw;
-    }
-    idx += n_tw;
-
-    int nodes = n_mp_bot + n_mp_top + n_ov + n_ts + n_tw + 1;
-    z.resize(nodes);
-    EIx.resize(nodes-1);
-    EIy.resize(nodes-1);
-    EA.resize(nodes-1);
-    GJ.resize(nodes-1);
-    rhoA.resize(nodes-1);
-    rhoJ.resize(nodes-1);
-
-    PolyVec Px(nodes-1);
-    PolyVec Py(nodes-1);
-    PolyVec Pz(nodes-1);
-    //Px.setZero();
-    //Py.setZero();
-    //Pz.setZero();
-
-    Vector Fx_pt(nodes), Fy_pt(nodes), Fz_pt(nodes), Mx_pt(nodes), My_pt(nodes), Mz_pt(nodes);
-    Fx_pt.setZero();
-    Fy_pt.setZero();
-    Fz_pt.setZero();
-    Mx_pt.setZero();
-    My_pt.setZero();
-    Mz_pt.setZero();
-
-    double m = 5.7380e5;
-    double Ixx = 86.579e6;
-    double Iyy = 53.530e6;
-    double Izz = 58.112e6;
-    double Itip[] = {Ixx, Iyy, Izz, 0.0, 0.0, 0.0};
-    double cm[] = {0.0, 0.0, 2.34};
-    double F[] = {2000.0e3, 0.0, 0.0};
-    double M[] = {0.0, 0.0, 0.0};
-
-//    m = 0.0;
-//    Itip[0] = 0.0;
-//    Itip[1] = 0.0;
-//    Itip[2] = 0.0;
-
-    TipData tip(m, cm, Itip, F, M);
-
-    double kx = 4.72e8;
-    double ktx = 1.27e11;
-    BaseData base(kx, ktx, kx, ktx, 999, 999, 999);
-    //BaseData base(999, 999, 999, 999, 999, 999, 999);
-
-    PolynomialSectionData sec = PolynomialSectionData(z, EA, EIx, EIy, GJ, rhoA, rhoJ);
-    PolynomialLoads loads = PolynomialLoads(Px, Py, Pz, Fx_pt, Fy_pt, Fz_pt, Mx_pt, My_pt, Mz_pt);
-    Beam beam = Beam(sec, loads, tip, base);
-
-    int nFreq = 100;
-    Vector freq(nFreq);
-
-//    beam.computeNaturalFrequencies(nFreq, freq);
-//    double mass = beam.computeMass();
-//    double Pcr_x, Pcr_y;
-//    beam.computeMinBucklingLoads(Pcr_x, Pcr_y);
-
-//    std::cout << mass << std::endl;
-//    for (int i = 0; i < 20; i++){
-//        std::cout << freq(i) << std::endl;
-//    }
-//    std::cout << Pcr_x << std::endl;
-
-
-
-//    beam.computeAxialStress(<#Vector &x#>, <#Vector &y#>, <#Vector &z#>, <#Vector &E#>, <#Vector &sigma_axial#>)
-
-//    double tol_pct = 6e-6*100;
-    //self.assertAlmostEqual(freq(1), sqrt(0.59919 / alpha) / (2*np.pi)).epsilon(tol_pct));
-
-}
-'''        
+        npts = 10
+        xv = yv = np.zeros(npts)
+        zv = np.linspace(z[0], z[-1], npts)
+        self.assertNotIn( beam.axialStrain(npts, xv, yv, zv).sum(), badlist)
+        
 def suite():
     suite = unittest.TestSuite()
     suite.addTest(unittest.makeSuite(TestPyBeam))
