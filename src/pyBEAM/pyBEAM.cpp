@@ -439,14 +439,14 @@ public:
 
     for(int i = 0; i < n; i++) {
 
-      double eval = (i < n-1) ? 0.0 : 1.0;
+      double val = (i < n-1) ? 0.0 : 1.0;
       
-      Vx0[i] = Vx[i].eval(1.0);
-      Vy0[i] = Vy[i].eval(1.0);
-      Fz0[i] = Fz[i].eval(1.0);
-      Mx0[i] = -My[i].eval(1.0);  // translate back to global coordinates
-      My0[i] = Mx[i].eval(1.0);  // translate back to global coordinates
-      Tz0[i] = Tz[i].eval(1.0);
+      Vx0[i] = Vx[i].eval(val);
+      Vy0[i] = Vy[i].eval(val);
+      Fz0[i] = Fz[i].eval(val);
+      Mx0[i] = -My[i].eval(val);  // translate back to global coordinates
+      My0[i] = Mx[i].eval(val);  // translate back to global coordinates
+      Tz0[i] = Tz[i].eval(val);
     }
 
     return py::make_tuple(Vx0, Vy0, Fz0, Mx0, My0, Tz0);

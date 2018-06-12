@@ -137,9 +137,10 @@ Beam::Beam(const SectionData& sec, const Loads& loads,
 // init directly with polynomial data
 Beam::Beam(const PolynomialSectionData& sec, const PolynomialLoads& loads,
            const TipData &tip, const BaseData &base)
-  : nodes(sec.nodes), z_node(sec.z), EA(sec.EA),
+  : nodes(sec.nodes), EA(sec.EA), 
     EIxx(sec.EIxx), EIyy(sec.EIyy), GJ(sec.GJ),
-    rhoA(sec.rhoA), rhoJ(sec.rhoJ), Px(loads.Px), Py(loads.Py), Pz(loads.Pz),
+    rhoA(sec.rhoA), rhoJ(sec.rhoJ), z_node(sec.z),
+    Px(loads.Px), Py(loads.Py), Pz(loads.Pz),
     Fx_node(loads.Fx), Fy_node(loads.Fy), Fz_node(loads.Fz),
     Mx_node(loads.Mx), My_node(loads.My), Mz_node(loads.Mz),
     tip(tip), base(base)
