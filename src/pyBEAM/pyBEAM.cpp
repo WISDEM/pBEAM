@@ -11,7 +11,7 @@
 #include "myMath.h"
 #include "FEAData.h"
 #include "Beam.h"
-
+#include <iostream>
 
 namespace py = pybind11;
 
@@ -432,22 +432,25 @@ public:
     PolyVec Vx, Vy, Fz, Mx, My, Tz;
     beam->shearAndBending(Vx, Vy, Fz, Mx, My, Tz);
 
-    int n = beam->getNumNodes();
-
-    Vector Vx0(n), Vy0(n), Fz0(n), Mx0(n), My0(n), Tz0(n);
-
+    int n = beam->getNumNodes() - 1;
+    int nodes = n + 1;
+    
+    Vector Vx0(nodes), Vy0(nodes), Fz0(nodes), Mx0(nodes), My0(nodes), Tz0(nodes);
 
     for(int i = 0; i < n; i++) {
-
-      double val = (i < n-1) ? 0.0 : 1.0;
-      
-      Vx0[i] = Vx[i].eval(val);
-      Vy0[i] = Vy[i].eval(val);
-      Fz0[i] = Fz[i].eval(val);
-      Mx0[i] = -My[i].eval(val);  // translate back to global coordinates
-      My0[i] = Mx[i].eval(val);  // translate back to global coordinates
-      Tz0[i] = Tz[i].eval(val);
+      Vx0[i] = Vx[i].eval(0.0);
+      Vy0[i] = Vy[i].eval(0.0);
+      Fz0[i] = Fz[i].eval(0.0);
+      Mx0[i] = -My[i].eval(0.0);  // translate back to global coordinates
+      My0[i] = Mx[i].eval(0.0);  // translate back to global coordinates
+      Tz0[i] = Tz[i].eval(0.0);
     }
+    Vx0[n] = Vx[n-1].eval(1.0);
+    Vy0[n] = Vy[n-1].eval(1.0);
+    Fz0[n] = Fz[n-1].eval(1.0);
+    Mx0[n] = -My[n-1].eval(1.0);  // translate back to global coordinates
+    My0[n] = Mx[n-1].eval(1.0);  // translate back to global coordinates
+    Tz0[n] = Tz[n-1].eval(1.0);
 
     return py::make_tuple(Vx0, Vy0, Fz0, Mx0, My0, Tz0);
   }
