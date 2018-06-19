@@ -5,7 +5,10 @@ Revised June 2018 by Garrett E. Barter
 
 ## Prerequisites
 
-C++ compiler, NumPy
+C++ compiler (with c++11 support), NumPy
+
+Note that any modern compiler (gcc, clang, etc) on Linux or MacOS will support the c++11 standard.  On Windows, recommend to use mingw through Anaconda or gcc on Cygwin.
+
 
 ## Installation
 
