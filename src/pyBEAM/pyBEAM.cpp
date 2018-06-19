@@ -6,9 +6,9 @@
 //  Copyright (c) 2012 NREL. All rights reserved.
 //
 
-#include <pybind11/pybind11.h>
-#include <pybind11/eigen.h>
 #include "myMath.h"
+#include <pybind11/eigen.h>
+#include <pybind11/pybind11.h>
 #include "FEAData.h"
 #include "Beam.h"
 #include <iostream>
