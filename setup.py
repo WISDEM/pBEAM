@@ -15,7 +15,7 @@ src[4] = os.path.join(path, 'pyBEAM', src[4])
 
 if platform.system() == 'Windows':
     # Note: must use mingw compiler on windows or a Visual C++ compiler version that supports std=c++11
-    arglist = ['-std=gnu11','-fPIC']
+    arglist = ['-std=gnu++11','-fPIC']
 else:
     arglist = ['-std=c++11','-fPIC']
     
