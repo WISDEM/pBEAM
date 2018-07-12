@@ -11,9 +11,11 @@
 #include <pybind11/pybind11.h>
 #include "FEAData.h"
 #include "Beam.h"
+#include "CurveFEM.h"
 #include <iostream>
 
 namespace py = pybind11;
+
 
 //MARK: ---------- WRAPPER FOR TIP DATA ---------------------
 
@@ -426,6 +428,7 @@ public:
   }
 
 
+  
   // in global 3D coordinate system
   py::tuple computeShearAndBending(){
 
@@ -454,12 +457,30 @@ public:
 
     return py::make_tuple(Vx0, Vy0, Fz0, Mx0, My0, Tz0);
   }
+
 };
 
 
+//MARK: ---------- WRAPPER FOR CURVE FEM ---------------------
+
+class pyCurveFEM{
+  CurveFEM *mycurve;
+  
+public:
+  pyCurveFEM(const double omegaRPM, const Vector &StrcTwst, const Vector &BldR,
+	     const Vector &PrecrvRef, const Vector &PreswpRef, const Vector &BMassDen, const bool rootFix) {
+    mycurve = new CurveFEM(omegaRPM, StrcTwst, BldR, PrecrvRef, PreswpRef, BMassDen, rootFix);
+  }
+  
+  ~pyCurveFEM(){delete mycurve;}
+  
+  Vector compute_frequencies(Vector &ea, Vector &eix, Vector &eiy, Vector &gj, Vector &rhoJ) {
+    return mycurve->frequencies(ea, eix, eiy, gj, rhoJ);
+  }
+};
 
 
-// MARK: --------- BOOST MODULE ---------------
+// MARK: --------- PYTHON MODULE ---------------
 
 PYBIND11_MODULE(_pBEAM, m)
 {
@@ -477,6 +498,11 @@ PYBIND11_MODULE(_pBEAM, m)
     .def("axialStrain", &pyBEAM::computeAxialStrain)
     .def("outOfPlaneMomentOfInertia", &pyBEAM::computeOutOfPlaneMomentOfInertia)
     .def("shearAndBending", &pyBEAM::computeShearAndBending)
+    ;
+
+  py::class_<pyCurveFEM>(m, "CurveFEM")
+    .def(py::init<double, Vector, Vector, Vector, Vector, Vector, bool>())
+    .def("frequencies", &pyCurveFEM::compute_frequencies)
     ;
 
   py::class_<pyTipData>(m, "TipData")

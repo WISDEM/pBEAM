@@ -6,11 +6,11 @@ from numpy.distutils.core import setup, Extension
 import os, platform
 
 path = 'src'
-src = ['Poly.cpp', 'myMath.cpp', 'BeamFEA.cpp', 'Beam.cpp', 'pyBEAM.cpp']
+src = ['Poly.cpp', 'myMath.cpp', 'BeamFEA.cpp', 'CurveFEM.cpp', 'Beam.cpp', 'pyBEAM.cpp']
 
-for i in range(4):
+for i in range(len(src)-1):
     src[i] = os.path.join(path, 'pBEAM', src[i])
-src[4] = os.path.join(path, 'pyBEAM', src[4])
+src[-1] = os.path.join(path, 'pyBEAM', src[-1])
 
 
 if platform.system() == 'Windows':
