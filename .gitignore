@@ -13,6 +13,9 @@ generated
 # C extensions
 *.so
 
+# Emacs
+*~
+
 # Packages
 *.egg
 *.egg-info
