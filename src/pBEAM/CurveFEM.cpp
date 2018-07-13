@@ -1033,11 +1033,19 @@ Vector CurveFEM::frequencies(const Vector &ea, const Vector &eix, const Vector &
 
   // solve eigenvalues
   Vector eigs(ndof);
-  Vector freqs(ndof);
   myMath::generalizedEigenvalues(gs + cf - kspin, gm, eigs);
-  
-  for (int i = 0; i < ndof; i++)
-    freqs(i) = sqrt(eigs(i)) / (2.0*M_PI);
+
+  int idx = 0;
+  std::vector<double> tmpFreq(ndof);
+  for (int k=0; k<ndof; k++) {
+    if (eigs(k) < 1e-6) continue;
+    tmpFreq[idx] = sqrt(eigs(k)) / (2.0*M_PI);
+    idx++;
+  }
+
+  // resize vector to actual length (after removing rigid modes and accounting for user input)
+  Vector freqs(idx);
+  for (int k=0; k<idx; k++) freqs(k) = tmpFreq[k];
   
   return freqs;
 }

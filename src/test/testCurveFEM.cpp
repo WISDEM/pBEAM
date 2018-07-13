@@ -224,3 +224,241 @@ TEST_CASE( "curvefem_fixed_beam_n_3" ){
 
 }
 
+
+
+TEST_CASE( "curvefem_free_beam_n_1" ){
+
+    double E = 2.0;
+    double I = 3.0;
+    double L = 4.0;
+    double A = 5.0;
+    double rho = 6.0;
+    double omegaRPM = 0.0;
+
+    int n = 1;
+
+    int nodes = n+1;
+
+    Vector z(nodes);
+    for (int i = 0; i < nodes; i++) {
+        z(i) = L*i;
+    }
+
+    Vector EIx(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EIx(i) = E * I;
+    }
+
+    Vector EIy(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EIy(i) = E * I;
+    }
+
+    Vector EA(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EA(i) = 1.0;
+    }
+
+    Vector GJ(nodes);
+    for (int i = 0; i < nodes; i++) {
+        GJ(i) = 1.0;
+    }
+
+    Vector rhoA(nodes);
+    for (int i = 0; i < nodes; i++) {
+        rhoA(i) = rho * A;
+    }
+
+    Vector rhoJ(nodes);
+    for (int i = 0; i < nodes; i++) {
+        rhoJ(i) = 1.0;
+    }
+
+    Vector theta(nodes);
+    Vector precurv(nodes);
+    Vector presweep(nodes);
+    theta.setZero();
+    precurv.setZero();
+    presweep.setZero();
+    
+    CurveFEM mycurve = CurveFEM(omegaRPM, theta, z, precurv, presweep, rhoA, false);
+    Vector freq = mycurve.frequencies(EA, EIx, EIy, GJ, rhoJ);
+
+    double m = rho * A;
+    double alpha = m * pow(n*L, 4) / (840.0 * E * I);
+
+    double tol_pct = 5e-6*100;
+    REQUIRE(freq(1) == Approx(sqrt(0.85714 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(2) == Approx(sqrt(0.85714 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+    REQUIRE(freq(4) == Approx(sqrt(10.0 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(5) == Approx(sqrt(10.0 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+}
+
+
+// Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
+// Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
+// pg. 168
+TEST_CASE( "curvefem_free_beam_n_2" ){
+
+    double E = 2.0;
+    double I = 3.0;
+    double L = 4.0;
+    double A = 5.0;
+    double rho = 6.0;
+    double omegaRPM = 0.0;
+
+    int n = 2;
+
+    int nodes = n+1;
+
+    Vector z(nodes);
+    for (int i = 0; i < nodes; i++) {
+        z(i) = L*i;
+    }
+
+    Vector EIx(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EIx(i) = E * I;
+    }
+
+    Vector EIy(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EIy(i) = E * I;
+    }
+
+    Vector EA(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EA(i) = 1.0;
+    }
+
+    Vector GJ(nodes);
+    for (int i = 0; i < nodes; i++) {
+        GJ(i) = 1.0;
+    }
+
+    Vector rhoA(nodes);
+    for (int i = 0; i < nodes; i++) {
+        rhoA(i) = rho * A;
+    }
+
+    Vector rhoJ(nodes);
+    for (int i = 0; i < nodes; i++) {
+        rhoJ(i) = 1.0;
+    }
+
+    Vector theta(nodes);
+    Vector precurv(nodes);
+    Vector presweep(nodes);
+    theta.setZero();
+    precurv.setZero();
+    presweep.setZero();
+    
+    CurveFEM mycurve = CurveFEM(omegaRPM, theta, z, precurv, presweep, rhoA, false);
+    Vector freq = mycurve.frequencies(EA, EIx, EIy, GJ, rhoJ);
+
+    double m = rho * A;
+    double alpha = m * pow(n*L, 4) / (840.0 * E * I);
+
+    double tol_pct = 6e-6*100;
+    REQUIRE(freq(1) == Approx(sqrt(0.59858 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(2) == Approx(sqrt(0.59858 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+    REQUIRE(freq(5) == Approx(sqrt(5.8629 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(6) == Approx(sqrt(5.8629 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+    REQUIRE(freq(8) == Approx(sqrt(36.659 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(9) == Approx(sqrt(36.659 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+    REQUIRE(freq(10) == Approx(sqrt(93.566 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(11) == Approx(sqrt(93.566 / alpha) / (2*M_PI)).epsilon(tol_pct));
+}
+
+
+
+// Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
+// Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
+// pg. 168
+TEST_CASE( "curvefem_free_beam_n_3" ){
+
+    double E = 2.0;
+    double I = 3.0;
+    double L = 4.0;
+    double A = 5.0;
+    double rho = 6.0;
+    double omegaRPM = 0.0;
+
+    int n = 3;
+
+    int nodes = n+1;
+
+    Vector z(nodes);
+    for (int i = 0; i < nodes; i++) {
+        z(i) = L*i;
+    }
+
+    Vector EIx(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EIx(i) = E * I;
+    }
+
+    Vector EIy(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EIy(i) = E * I;
+    }
+
+    Vector EA(nodes);
+    for (int i = 0; i < nodes; i++) {
+        EA(i) = 1.0;
+    }
+
+    Vector GJ(nodes);
+    for (int i = 0; i < nodes; i++) {
+        GJ(i) = 1.0;
+    }
+
+    Vector rhoA(nodes);
+    for (int i = 0; i < nodes; i++) {
+        rhoA(i) = rho * A;
+    }
+
+    Vector rhoJ(nodes);
+    for (int i = 0; i < nodes; i++) {
+        rhoJ(i) = 1.0;
+    }
+
+    Vector theta(nodes);
+    Vector precurv(nodes);
+    Vector presweep(nodes);
+    theta.setZero();
+    precurv.setZero();
+    presweep.setZero();
+    
+    CurveFEM mycurve = CurveFEM(omegaRPM, theta, z, precurv, presweep, rhoA, false);
+    Vector freq = mycurve.frequencies(EA, EIx, EIy, GJ, rhoJ);
+
+    double m = rho * A;
+    double alpha = m * pow(n*L, 4) / (840.0 * E * I);
+
+    double tol_pct = 6e-6*100;
+    REQUIRE(freq(1) == Approx(sqrt(0.59919 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(2) == Approx(sqrt(0.59919 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+    REQUIRE(freq(5) == Approx(sqrt(4.5750 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(6) == Approx(sqrt(4.5750 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+    REQUIRE(freq(8) == Approx(sqrt(22.010 / alpha) / (2*M_PI)).epsilon(.00105));
+    REQUIRE(freq(9) == Approx(sqrt(22.010 / alpha) / (2*M_PI)).epsilon(.00105));
+
+    REQUIRE(freq(11) == Approx(sqrt(70.920 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(12) == Approx(sqrt(70.920 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+    REQUIRE(freq(14) == Approx(sqrt(265.91 / alpha) / (2*M_PI)).epsilon(0.00073));
+    REQUIRE(freq(15) == Approx(sqrt(265.91 / alpha) / (2*M_PI)).epsilon(0.00073));
+
+    REQUIRE(freq(16) == Approx(sqrt(402.40 / alpha) / (2*M_PI)).epsilon(tol_pct));
+    REQUIRE(freq(17) == Approx(sqrt(402.40 / alpha) / (2*M_PI)).epsilon(tol_pct));
+
+}
+

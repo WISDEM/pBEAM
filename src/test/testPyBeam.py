@@ -2,7 +2,7 @@ import numpy as np
 import numpy.testing as npt
 import unittest
 import _pBEAM as pb
-import _curvefem
+#import _curvefem
 
 class TestPyBeam(unittest.TestCase):
     
@@ -113,7 +113,6 @@ class TestPyBeam(unittest.TestCase):
         expect = np.sqrt(10.0 / alpha) / (2*np.pi)
         self.assertAlmostEqual(freq[4], expect, delta=tol_pct)
         self.assertAlmostEqual(freq[5], expect, delta=tol_pct)
-
 
 
     def testFreqFree_FreeBeam_n2(self):
@@ -394,8 +393,6 @@ class TestPyBeam(unittest.TestCase):
         truth = np.array([0.012572866969753228, 0.012591740426479996, 0.015715395588976708, 0.015715395588976708, 0.02528529867098764, 0.02528529867098764, 0.06883002554331129, 0.06893334807998643, 0.09116741813672731, 0.09116741813672731, 0.1548391375450802, 0.1548391375450802])
         npt.assert_almost_equal(freq, truth)
 
-
-
     def testCurveFEM_FixedBeam_n2(self):
         # Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
         # Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
@@ -482,8 +479,137 @@ class TestPyBeam(unittest.TestCase):
 
         #truth = _curvefem.frequencies(omegaRPM, L, hubR, z/L, theta, rhoA, EIx, EIy, GJ, EA, rhoJ, precurv, presweep)
         #print "n3 odd", truth.tolist()
-        truth = np.array([np.nan, np.nan, np.nan, 0.00583962278555471, 0.013747011747362698, 0.019857000185537085, 0.022065457582918686, 0.022508587859798306, 0.06494224803437999, 0.07593365714823054, 0.08099501901331865, 0.08100059834010384, 0.11781473080899654, 0.1973084679918305, 0.44555268080407895, 0.48641244353481683, 0.7481252945270574, 0.7730228919707995, 1.0518193329242682, 1.0696357241743277, 1.4148111654258362, 1.4280996628456801, 1.9080030090517186, 1.9178773250559262])
+        truth = np.array([0.00583962278555471, 0.013747011747362698, 0.019857000185537085, 0.022065457582918686, 0.022508587859798306, 0.06494224803437999, 0.07593365714823054, 0.08099501901331865, 0.08100059834010384, 0.11781473080899654, 0.1973084679918305, 0.44555268080407895, 0.48641244353481683, 0.7481252945270574, 0.7730228919707995, 1.0518193329242682, 1.0696357241743277, 1.4148111654258362, 1.4280996628456801, 1.9080030090517186, 1.9178773250559262])
         npt.assert_almost_equal(freq, truth)
+
+        
+    def testCurveFEM_FreeBeam_n1(self):
+        # Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
+        # Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
+        # pg. 168
+        E = 2.0
+        I = 3.0
+        L = 4.0
+        A = 5.0
+        rho = 6.0
+        hubR = 0.0
+        omegaRPM = 0.0
+
+        n = 1
+        nodes = n+1
+        
+        z = L * np.arange(nodes)
+        EIx = EIy = E*I*np.ones(nodes)
+        EA = GJ = rhoJ = np.ones(nodes)
+        rhoA = rho*A*np.ones(nodes)
+        theta = precurv = presweep = np.zeros(nodes) #np.linspace(0.0, 3.0, nodes)
+
+        mycurve = pb.CurveFEM(omegaRPM, theta, z, precurv, presweep, rhoA, False)
+        freq = mycurve.frequencies(EA, EIx, EIy, GJ, rhoJ)
+
+        
+        m = rho * A
+        alpha = m * (n*L)**4.0 / (840.0 * E * I)
+
+        tol_pct = 5e-6 * 100
+        expect = np.sqrt(0.85714 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[1], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[2], expect, delta=tol_pct)
+        expect = np.sqrt(10.0 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[4], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[5], expect, delta=tol_pct)
+
+
+    def testCurveFEM_FreeBeam_n2(self):
+        # Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
+        # Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
+        # pg. 168
+        E = 2.0
+        I = 3.0
+        L = 4.0
+        A = 5.0
+        rho = 6.0
+        hubR = 0.0
+        omegaRPM = 0.0
+
+        n = 2
+        nodes = n+1
+        
+        z = L * np.arange(nodes)
+        EIx = EIy = E*I*np.ones(nodes)
+        EA = GJ = rhoJ = np.ones(nodes)
+        rhoA = rho*A*np.ones(nodes)
+        theta = precurv = presweep = np.zeros(nodes) #np.linspace(0.0, 3.0, nodes)
+
+        mycurve = pb.CurveFEM(omegaRPM, theta, z, precurv, presweep, rhoA, False)
+        freq = mycurve.frequencies(EA, EIx, EIy, GJ, rhoJ)
+        
+        m = rho * A
+        alpha = m * (n*L)**4.0 / (840.0 * E * I)
+
+        tol_pct = 6e-6 * 100
+        expect = np.sqrt(0.59858 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[1], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[2], expect, delta=tol_pct)
+        expect = np.sqrt(5.8629 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[5], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[6], expect, delta=tol_pct)
+        expect = np.sqrt(36.659 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[8], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[9], expect, delta=tol_pct)
+        expect = np.sqrt(93.566 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[10], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[11], expect, delta=tol_pct)
+
+        
+
+    def testCurveFEM_FreeBeam_n3(self):
+        # Test data from "Consistent Mass Matrix for Distributed Mass Systmes", John Archer,
+        # Journal of the Structural Division Proceedings of the American Society of Civil Engineers,
+        # pg. 168
+        E = 2.0
+        I = 3.0
+        L = 4.0
+        A = 5.0
+        rho = 6.0
+        hubR = 0.0
+        omegaRPM = 0.0
+
+        n = 3
+        nodes = n+1
+        
+        z = L * np.arange(nodes)
+        EIx = EIy = E*I*np.ones(nodes)
+        EA = GJ = rhoJ = np.ones(nodes)
+        rhoA = rho*A*np.ones(nodes)
+        theta = precurv = presweep = np.zeros(nodes) #np.linspace(0.0, 3.0, nodes)
+
+        mycurve = pb.CurveFEM(omegaRPM, theta, z, precurv, presweep, rhoA, False)
+        freq = mycurve.frequencies(EA, EIx, EIy, GJ, rhoJ)
+        
+        m = rho * A
+        alpha = m * (n*L)**4.0 / (840.0 * E * I)
+
+        tol_pct = 6e-6 * 100
+        expect = np.sqrt(0.59919 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[1], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[2], expect, delta=tol_pct)
+        expect = np.sqrt(4.5750 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[5], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[6], expect, delta=tol_pct)
+        expect = np.sqrt(22.010 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[8], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[9], expect, delta=tol_pct)
+        expect = np.sqrt(70.920 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[11], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[12], expect, delta=tol_pct)
+        expect = np.sqrt(265.91 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[14], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[15], expect, delta=tol_pct)
+        expect = np.sqrt(402.40 / alpha) / (2*np.pi)
+        self.assertAlmostEqual(freq[16], expect, delta=tol_pct)
+        self.assertAlmostEqual(freq[17], expect, delta=tol_pct)
+
         
 def suite():
     suite = unittest.TestSuite()
