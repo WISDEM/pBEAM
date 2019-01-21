@@ -128,7 +128,7 @@ public:
     Outputs:
     freqs       ! Global mass matrix (direct return)
   */  
-  Vector frequencies(const Vector &ea, const Vector &eix, const Vector &eiy, const Vector &gj, const Vector &rhoJ);
+  void frequencies(const Vector &ea, const Vector &eix, const Vector &eiy, const Vector &gj, const Vector &rhoJ, Vector &freqs, Matrix &eig_vec);
 };
 
 

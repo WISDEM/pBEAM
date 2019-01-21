@@ -987,7 +987,8 @@ void CurveFEM::taper_mass_stiff(const Vector &ea, const Vector &eix, const Vecto
 }
 
 
-Vector CurveFEM::frequencies(const Vector &ea, const Vector &eix, const Vector &eiy, const Vector &gj, const Vector &rhoJ) {
+void CurveFEM::frequencies(const Vector &ea, const Vector &eix, const Vector &eiy, const Vector &gj, const Vector &rhoJ,
+  Vector &freqs, Matrix &eig_vec) {
   /****************************
   Purpose:
     Compute natural frequencies of structure (Hz)
@@ -1033,7 +1034,8 @@ Vector CurveFEM::frequencies(const Vector &ea, const Vector &eix, const Vector &
 
   // solve eigenvalues
   Vector eigs(ndof);
-  myMath::generalizedEigenvalues(gs + cf - kspin, gm, eigs);
+  // Matrix eig_vec(ndof, ndof);
+  myMath::generalizedEigenvalues(gs + cf - kspin, gm, eigs, eig_vec);
 
   int idx = 0;
   std::vector<double> tmpFreq(ndof);
@@ -1044,8 +1046,8 @@ Vector CurveFEM::frequencies(const Vector &ea, const Vector &eix, const Vector &
   }
 
   // resize vector to actual length (after removing rigid modes and accounting for user input)
-  Vector freqs(idx);
+  // Vector freqs(idx);
   for (int k=0; k<idx; k++) freqs(k) = tmpFreq[k];
   
-  return freqs;
+  // return freqs;
 }

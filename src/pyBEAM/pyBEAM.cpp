@@ -472,12 +472,42 @@ public:
     mycurve = new CurveFEM(omegaRPM, StrcTwst, BldR, PrecrvRef, PreswpRef, BMassDen, rootFix);
   }
   
-  ~pyCurveFEM(){delete mycurve;}
+  // ~pyCurveFEM(){delete mycurve;}
   
-  Vector compute_frequencies(Vector &ea, Vector &eix, Vector &eiy, Vector &gj, Vector &rhoJ) {
-    return mycurve->frequencies(ea, eix, eiy, gj, rhoJ);
+  // Vector compute_frequencies(Vector &ea, Vector &eix, Vector &eiy, Vector &gj, Vector &rhoJ) {
+  //   return mycurve->frequencies(ea, eix, eiy, gj, rhoJ);
+  // }
+  ~pyCurveFEM(){delete mycurve;}  
+
+  py::tuple compute_frequencies(Vector &ea, Vector &eix, Vector &eiy, Vector &gj, Vector &rhoJ, int &n) {
+    int ndof;
+      ndof = n*6;
+
+    // int nnode;
+
+    // nnode = BldR.size();
+    // ndof = 6 * nnode;
+    // Vector freqs(ndof);
+    // Matrix eig_vec(ndof, ndof);
+
+    Vector freqs(ndof);
+    Matrix eig_vec(0, 0);
+
+    mycurve->frequencies(ea, eix, eiy, gj, rhoJ, freqs, eig_vec);
+
+    return py::make_tuple(freqs, eig_vec);
   }
 };
+
+
+  // py::tuple computeNaturalFrequenciesAndEigenvectors(int n){
+
+  //   Vector freqs(n);
+  //   Matrix eigenvectors(0, 0);
+  //   beam->computeNaturalFrequencies(n, freqs, eigenvectors);
+
+  //   return py::make_tuple(freqs, eigenvectors);
+  // }
 
 
 // MARK: --------- PYTHON MODULE ---------------
