@@ -23,10 +23,9 @@ setup(
     name='pBEAM',
     version='0.2.0',
     description='Polynomial Beam Element Analysis Module. Finite element analysis for beam-like structures.',
-    author='S. Andrew Ning and Garrett E. Barter',
-    author_email='garrett.barter@nrel.gov',
-    license=['Apache License, Version 2.0','Mozilla Public License (MPL) version 2.0',
-             'Boost Software License 1.0','pybind11 license'],
+    author='NREL WISDEM Team and Garrett E. Barter',
+    author_email='systems.engineering@nrel.gov',
+    license=['Apache License, Version 2.0','Mozilla Public License (MPL) version 2.0','pybind11 license'],
     ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=arglist,
                            include_dirs=[os.path.join(path, 'pBEAM'), os.path.join(path, 'include')])],
     zip_safe=False

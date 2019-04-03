@@ -1,7 +1,12 @@
+# pBEAM
+
 A finite element method for beam-like structures.
 
-Author: S. Andrew Ning
-Revised June 2018 by Garrett E. Barter
+Author: [NREL WISDEM Team](mailto:systems.engineering@nrel.gov) 
+
+## Documentation
+
+See local documentation in the `docs`-directory or access the online version at <http://wisdem.github.io/pBEAM/>
 
 ## Prerequisites
 
@@ -12,9 +17,7 @@ Note that any modern compiler (gcc, clang, etc) on Linux or MacOS will support t
 
 ## Installation
 
-You should already have successfully installed Python (for a [single user only](http://bugs.python.org/issue5459#msg101098)), NumPy, and setuptools.
-
-Install pBEAM with the following command.
+For detailed installation instructions of WISDEM modules see <https://github.com/WISDEM/WISDEM> or to install pBEAM by itself do:
 
     $ python setup.py install
 
@@ -41,8 +44,4 @@ where the name of your C++ compiler should be inserted in the place of g++.  The
 
 For software issues please use <https://github.com/WISDEM/pBEAM/issues>.  For functionality and theory related questions and comments please use the NWTC forum for [Systems Engineering Software Questions](https://wind.nrel.gov/forum/wind/viewtopic.php?f=34&t=1002).
 
-
-## Detailed Documentation
-
-Access the online version at <http://wisdem.github.io/pBEAM/>
 
