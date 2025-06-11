@@ -2,31 +2,50 @@
 # encoding: utf-8
 
 import setuptools
-from numpy.distutils.core import setup, Extension
-import os, platform
+from setuptools import setup, Extension
+import os
+import platform
+import pybind11
 
+# Define source files and paths
 path = 'src'
 src = ['Poly.cpp', 'myMath.cpp', 'BeamFEA.cpp', 'CurveFEM.cpp', 'Beam.cpp', 'pyBEAM.cpp']
 
-for i in range(len(src)-1):
-    src[i] = os.path.join(path, 'pBEAM', src[i])
-src[-1] = os.path.join(path, 'pyBEAM', src[-1])
+# Construct full paths for source files
+src = [os.path.join(path, 'pBEAM', f) if f != 'pyBEAM.cpp' else os.path.join(path, 'pyBEAM', f) for f in src]
 
-
+# Platform-specific compiler arguments
 if platform.system() == 'Windows':
-    # Note: must use mingw compiler on windows or a Visual C++ compiler version that supports std=c++11
-    arglist = ['-std=gnu++11','-fPIC']
+    # Note: Use mingw or a Visual C++ compiler supporting C++11
+    extra_compile_args = ['-std=gnu++11', '-fPIC']
 else:
-    arglist = ['-std=c++11','-fPIC']
-    
+    extra_compile_args = ['-std=c++11', '-fPIC']
+
+# Define the extension module
+pbeam_extension = Extension(
+    '_pBEAM',
+    sources=src,
+    include_dirs=[
+        os.path.join(path, 'pBEAM'),
+        os.path.join(path, 'include'),
+        pybind11.get_include()  # Dynamically include pybind11 headers
+    ],
+    extra_compile_args=extra_compile_args,
+    language='c++'
+)
+
 setup(
     name='pBEAM',
     version='0.2.0',
     description='Polynomial Beam Element Analysis Module. Finite element analysis for beam-like structures.',
     author='NREL WISDEM Team and Garrett E. Barter',
     author_email='systems.engineering@nrel.gov',
-    license=['Apache License, Version 2.0','Mozilla Public License (MPL) version 2.0','pybind11 license'],
-    ext_modules=[Extension('_pBEAM', sources=src, extra_compile_args=arglist,
-                           include_dirs=[os.path.join(path, 'pBEAM'), os.path.join(path, 'include')])],
-    zip_safe=False
+    license='Apache License, Version 2.0; Mozilla Public License (MPL) version 2.0; pybind11 license',
+    ext_modules=[pbeam_extension],
+    zip_safe=False,
+    python_requires='>=3.6',
+    install_requires=[
+        'numpy>=1.20',
+        'pybind11>=2.9.0'  # Ensure pybind11 version supports Python 3.11
+    ]
 )
